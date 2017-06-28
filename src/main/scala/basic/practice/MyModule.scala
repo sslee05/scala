@@ -55,6 +55,17 @@ object MyModule {
     loop(xs,0)(p)
   }
   
+  def isSorted[A](xs:Array[A],ordered:(A,A) => Boolean):Boolean = {
+    
+    def loop(xs:Array[A],n:Int):Boolean = {
+      if(n < 1) true
+      else if(ordered(xs(n-1),xs(n))) loop(xs,n-1)
+      else false
+    }
+    
+    loop(xs,xs.length - 1)
+  }
+  
   def main(args:Array[String]):Unit = {
     println(format(-42))
     println(factorial(3))
@@ -64,6 +75,9 @@ object MyModule {
     
     val xs = List(1,2,3,4,5,6)
     println(polyTypeHighFunction(xs)(x => x > 3))
+    
+    val xs2 = Array(1,2,3,4,5,6,7,8,9,10)
+    println(isSorted(xs2,(x:Int,y:Int) => x < y))
   }
   
 }
