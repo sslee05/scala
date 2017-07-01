@@ -7,13 +7,14 @@ import akka.event.Logging
 object TestCreation extends App{
   
   /*
- 	ActorRef를 생성하기 위해 ActorSystem를 이용하며 이때 ActorRef를 생성하기 위한 구성정보(dispatcher,mailbox등)를
- 	가지는 정보로 immutable 이다.
-  주의 점은 다음과 같다
-  1.Props 에 Actor를 new 하지 않는다.(companion 에서는 권장)
-  2.Actor에 class parameter가 case class 또는 default parameter가 있을 경우 companion에서 Props를 
-    return 하는 factory method를 구현하라.
-  */
+ 	ActorRef를 생성하기 위해 ActorSystem에 Props를 인자로 준다.
+ 	Props은 ActorRef를 생성하기 위한 필요 정보(dispatcher,mailbox등)를 가지며 immutable이다.
+ 	주의 점들과 Props를 생성하는 방법은 다음과 같이 정리 할 수 있다.
+ 	
+ 	1.Props에 Actor를 new 하지 않는다.(companion 에서는 권장)
+ 	2.Actor에 class parameter가 case class 또는 default class parameter가 있는 경우
+ 	  companion 에서 Props를 return 하는 factory method를 구현하라.
+	*/
   
   //1.parameter가 없는 경우
   val props01 = Props[MyActor]
