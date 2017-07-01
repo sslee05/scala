@@ -22,12 +22,12 @@ object TestCreation extends App{
   val props02 = Props(classOf[MyActor])
   val notRecommandProps01 = Props(new MyActor()) // 이렇게 하지 않는다.
   
-  //2.class parameter (not case class, not default parameter)
+  //2.class parameter (not with case AnyVal arguments, not default parameter)
   val props03 = Props(classOf[ActorWithArgs],2)//ok
   //val notRecomandProps02 = Props(new ActorWithArgs(2)) // 이렇게 하지 않는다.
   //val test = Props(classOf[ActorWithArgs02],ParamValue("test"))// not supported scase Test extends AnyVal
   
-  //3.class parameter case  class with AnyVal arguments.
+  //3.class parameter case class with AnyVal arguments.
   val props04 = ValueActor props01 ActorClassParam(2)
   val props05 = ValueActor props02 ActorClassParam(2)
   //val notOperatedProps = ValueActor props03 ActorClassParam(2)
@@ -55,7 +55,7 @@ class MyActor extends Actor {
 }
 
 //################################################################################
-//    class parameter not case class, not default parameter
+//    class parameter not with case AnyVal arguments, not default parameter
 //################################################################################
 class ActorWithArgs(args:Int) extends Actor {
   val log = Logging(context.system, this)
@@ -78,7 +78,7 @@ class ActorWithArgs02(paramValue:ParamValue) extends Actor {
 }
 
 //################################################################################
-//    class parameter An actor with AnyVal arguments
+//    class parameter An actor with case AnyVal arguments
 //################################################################################
 case class ActorClassParam(v: Int) extends AnyVal
 class ValueActor(value: ActorClassParam) extends Actor {
