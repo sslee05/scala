@@ -6,10 +6,14 @@ import akka.event.Logging
 
 object TestCreation extends App{
   
-  //ActorSystem 을 통한 ActorRef 를 생성하기 위한 Props의 생성 종류와 주의 점들 
-  //Actor 생성은 대상 Actor에 class parameter가 없을 경우는 간단하다.
-  //Actor 에 class parameter가 있을 경우 new 를 하지 않으며, class parameter가 
-  //case class 인경우,default class parameter인 경우 companion 객체로 factory method를 제공하게 한다.
+  /*
+ 	ActorRef를 생성하기 위해 ActorSystem를 이용하며 이때 ActorRef를 생성하기 위한 구성정보(dispatcher,mailbox등)를
+ 	가지는 정보로 immutable 이다.
+  주의 점은 다음과 같다
+  1.Props 에 Actor를 new 하지 않는다.(companion 에서는 권장)
+  2.Actor에 class parameter가 case class 또는 default parameter가 있을 경우 companion에서 Props를 
+    return 하는 factory method를 구현하라.
+  */
   
   //1.parameter가 없는 경우
   val props01 = Props[MyActor]
