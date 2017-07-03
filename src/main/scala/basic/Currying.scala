@@ -8,7 +8,6 @@ object Currying extends App {
   val unrruiedFn = Function.uncurried(partFn);
   //res1: (String, String) => String = scala.Function$$$Lambda$1054/376668615@608b1fd2
   
-  
   //test02 와 test03은 같
   //partFn과 test04의 function signature가 일치한다.
   //test04: String => (String => String)
