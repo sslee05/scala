@@ -12,9 +12,9 @@ object Reduction {
   //아래는 f compose g 와 같다. 또는 f andThen g 와 같다.
   def compose[A,B,C](f:B => C,g:A => B):A => C = (a:A) => f(g(a))
   
-  def compose02[A,B,C](f:B => C) = (g:A => B) => (a:A) => f(g(a))
-  def compose03[A,B,C](f:B => C)(g:A => B) = (a:A) => f(g(a))
-  def compose04[A,B,C](f:B => C)(g:A => B)(a:A) = f(g(a))
+  def compose02[A,B,C](f:B => C):(A=>B) => A =>C = (g:A => B) => (a:A) => f(g(a))
+  def compose03[A,B,C](f:B => C)(g:A => B):A => C = (a:A) => f(g(a))
+  def compose04[A,B,C](f:B => C)(g:A => B)(a:A):C = f(g(a))
   def compose05[A,B,C](f:B => C):(A => B) => (A => C) = (g:A => B) => (a:A) => f(g(a))
   def compose06[A,B,C](f:B => C)(g:A => B):A => C = (a:A) =>f(g(a))
   def compose07[A,B,C](f:B => C)(g:A => B)(a:A):C = f(g(a))
