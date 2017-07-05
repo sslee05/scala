@@ -58,7 +58,7 @@ object ViewBoundObj {
       case List(x) => x
       case (x::xs1) => {
         val xsV = maxValue03(xs1)// parameter 목록 암시적변환 적용됨 maxValue03(xs1)(ordered)
-        if(x > xsV) x else xsV //호출대상 객체 암시적변환 적용됨 ordered(x) > xsV 
+        if(x > xsV) x else xsV //호출대상 객체 암시적변환 적용됨 ordered(x) > ordered(xsV) 
       }
     }
   }
@@ -80,5 +80,4 @@ object ViewBoundObj {
     }
   }
 }
-
 
