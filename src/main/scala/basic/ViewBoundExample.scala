@@ -4,7 +4,7 @@ import scala.runtime.ScalaNumberProxy
 import scala.runtime.RichInt
 import scala.Proxy.Typed
 
-object ViewHyperBoundTest extends App {
+object ViewBoundExample extends App {
   implicit def convertMyBeanToRichBean(bean:MyBean):RichBean = RichBean(bean)
   
   def maxValue[T <% Ordered[T]](xs:List[T]):T = {
@@ -13,7 +13,7 @@ object ViewHyperBoundTest extends App {
       case List(x) => x
       case (x::xs1) => {
         val maxV = maxValue(xs1)
-        //T type이 Ordered를 상속한 것이 아닌 Ordered를 지원 할 수 있는 유형이어야 한다.
+        //T type이 Ordered를 상속한 것이 아닌 Ordered를 다룰 수 있는 유형이어야 한다.
         //MyBean은 Ordered와 상관이 없지만 implicit RichBean extends Ordered 이므로 가능하다.
         if(x > maxV) x else maxV 
       }
