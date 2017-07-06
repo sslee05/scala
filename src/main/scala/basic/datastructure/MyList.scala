@@ -32,6 +32,23 @@ object MyListTest extends App {
   
   val result10 = MyList reverse xs
   println(result10)
+  
+  
+  def test02[A,B](a:A,b:B)(f:(B,A) => B) = f(b,a)
+  def test03[A,B](a:A,b:B)(f:(A,B) => B):B = {
+    test02(a,(b:B) => b)((g,a) => z => g(f(a,z)))(b:B)
+  }
+  
+  
+  def testFoldLeft[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
+    xs match {
+      case MyNil => { println("xs last:"+z); z}
+      case MyCons(h,t) => {print("head:"+h+" ");testFoldLeft(t,f(z,h))(f)}
+    }
+  }
+  
+  testFoldLeft(xs,0)((z,a) => {println(" Fn f called=>a:"+a+" b:"+z);z + a})
+  
 }
 
 /**
@@ -85,23 +102,8 @@ object MyList {
     }
   }
   
-  def foldRight[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
-    xs match {
-      case MyNil => z
-      case MyCons(h,t) => f(h,foldRight(t,z)(f))
-    }
-  }
-  
   def length[A](xs:MyList[A]):Int = {
     foldRight(xs,0)((x,z) => z +1)
-  }
-  
-  @annotation.tailrec
-  def foldLeft[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
-    xs match {
-      case MyNil => z
-      case MyCons(h,t) => foldLeft(t,f(z,h))(f) 
-    }
   }
   
   def lengthByFoldLeft[A](xs:MyList[A]):Int = {
@@ -119,11 +121,47 @@ object MyList {
   def reverse[A](xs:MyList[A]):MyList[A] = {
     foldLeft(xs,MyNil:MyList[A])((z,x) => MyCons(x,z))
   }
-//  
-//  def foldRightViaFoldLeft[A,B](xs:MyList[A])(f:(A,B) => B):B = {
-//    foldLeft(reverse(xs),MyNil:MyList[A])((z,x) => f(x,z))
-//  }
-//  
+  
+  @annotation.tailrec
+  def foldLeft[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
+    xs match {
+      case MyNil => z
+      case MyCons(h,t) => foldLeft(t,f(z,h))(f) 
+    }
+  }
+  
+  def foldRight[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
+    xs match {
+      case MyNil => z
+      case MyCons(h,t) => f(h,foldRight(t,z)(f))
+    }
+  }
+  
+  /**
+   * foldLeft는 tail recursive 하므로 stack over flow 발생하지 않는다.
+   * 반면 foldRight는 그러하지 못 하다.
+   * foldRight를 tail recursive하게 foldLeft를 이용하여 다시 작성하라.
+   */
+  def foldRightViaLeft[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
+    foldLeft(xs,(y:B) => y)((g,a) => x => g(f(a,x)))(z)
+  }
+  
+  /**
+   * 위의 foldLeft & foldRightViaLeft를 이해하기 쉽게 다시 풀어 보면 다음과 같다.
+   * 여기서의 핵심은 foldLeft의 type B를 (B => B)함수로 생각하는 것이다.
+   */
+  def foldLeftSolve[A,B](xs:MyList[A],z:B=>B)(f:(B=>B,A) => B => B):B => B = {
+    xs match {
+      case MyNil => z
+      case MyCons(h,t) => foldLeftSolve(t,f(z,h))(f)
+    }
+  }
+  
+  def foldRightSolve[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
+    val literalFn:B=>B = foldLeftSolve(xs,(y:B) => y)((g,a) => x => g(f(a,x)))
+    literalFn(z)
+  }
+
 }
 
 sealed trait MyList[+A]
