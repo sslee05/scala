@@ -39,16 +39,6 @@ object MyListTest extends App {
     test02(a,(b:B) => b)((g,a) => z => g(f(a,z)))(b:B)
   }
   
-  
-  def testFoldLeft[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
-    xs match {
-      case MyNil => { println("xs last:"+z); z}
-      case MyCons(h,t) => {print("head:"+h+" ");testFoldLeft(t,f(z,h))(f)}
-    }
-  }
-  
-  testFoldLeft(xs,0)((z,a) => {println(" Fn f called=>a:"+a+" b:"+z);z + a})
-  
 }
 
 /**
