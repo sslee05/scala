@@ -8,7 +8,6 @@ package basic.datastructure
  * Vector는 임의이 접근,갱신,head,tail,init,상수시간 요소추가를 지원한다.
  * 
  * foldLeft & foldRight 
- * foldLeft & foldRight
  * foldLeft는 tail recursive 하기때문에 stack over flow 의 위험에 노출 되지 않는다. 반면 foldRight는 그러하지 못하다. 
  * function 은 수학의 공식과 같다. 
  * java의 명령어 처럼 변수에 값이 대입이 아닌 수학처럼 function 값을 전달하고 그 function의 공식의 결과에 값이 사상 된다.
