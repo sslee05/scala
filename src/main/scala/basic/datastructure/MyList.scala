@@ -94,10 +94,21 @@ object MyList {
     }
   }
   
+  def foldLeftViaRight[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
+    foldRight(xs,(y:B) => y)((a,g) => x => g(f(x,a)))(z) 
+  }
+  
+  
   /**
    * foldLeft는 tail recursive 하므로 stack over flow 발생하지 않는다.
    * 반면 foldRight는 그러하지 못 하다.
    * foldRight를 tail recursive하게 foldLeft를 이용하여 다시 작성하라.
+   * 
+   * work flow 은 다음과 같다.
+   * foldLeft가 실행되는 flow
+   * flow 1 (1,2::Nil) :   left(2::Nil,x1:Int => g1:(1 + x1) )
+   * flow 2 (2,Nil)    :   left(Nil,x2:Int => g2:g1(2 + x2) )
+   * flow 3 (Nil)      :   return function1 instance => x3:Int => g2(x3)
    */
   def foldRightViaLeft[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
     foldLeft(xs,(y:B) => y)((g,a) => x => g(f(a,x)))(z)
@@ -115,8 +126,8 @@ object MyList {
   }
   
   def foldRightSolve[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
-    val literalFn:B=>B = foldLeftSolve(xs,(y:B) => y)((g,a) => x => g(f(a,x)))
-    literalFn(z)
+    val fn:B=>B = foldLeftSolve(xs,(y:B) => y)((g,a) => x => g(f(a,x)))
+    fn(z)
   }
 
 }
@@ -128,6 +139,11 @@ object MyNil extends MyList[Nothing]
 
 object MyListTest extends App {
   val xs = MyList(1,2,3,4,5)
+  
+  val f01 = (x:Int) => x
+  val f02 = (x:Int) => x + 1
+  
+  println(f01(f02(2)))
   
   val result:MyList[Int] = MyList.tail(xs)
   println(result)
