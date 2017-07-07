@@ -94,6 +94,12 @@ object MyList {
     }
   }
   
+  /**
+   * flow 1 (1,2::Nil) :  right.f(1,right(2::Nil,z => z))
+   * flow 2 (2::Nil)   :  right.f(2,right(Nil,z => z))
+   * flow 3 (Nil)      :  z => z
+   * turn
+   */
   def foldLeftViaRight[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
     foldRight(xs,(y:B) => y)((a,g) => x => g(f(x,a)))(z) 
   }
@@ -103,12 +109,14 @@ object MyList {
    * foldLeft는 tail recursive 하므로 stack over flow 발생하지 않는다.
    * 반면 foldRight는 그러하지 못 하다.
    * foldRight를 tail recursive하게 foldLeft를 이용하여 다시 작성하라.
+   * 여기서 foldLeft에서 f(z,h)의 결과가 x:Int => Int 인 Function1 instance 임을 생각하라.
    * 
    * work flow 은 다음과 같다.
    * foldLeft가 실행되는 flow
-   * flow 1 (1,2::Nil) :   left(2::Nil,x1:Int => g1:(1 + x1) )
-   * flow 2 (2,Nil)    :   left(Nil,x2:Int => g2:g1(2 + x2) )
-   * flow 3 (Nil)      :   return function1 instance => x3:Int => g2(x3)
+   * flow 1 (1,2::Nil) :   left(2::Nil,x1:Int => g1:(1 + x1) )           : g1(x1) = 1 + x1
+   * flow 2 (2,Nil)    :   left(Nil,x2:Int => g2:(2 + x2) )              : g2(x2) = 2 + x2
+   * flow 3 (Nil)      :   return function1 instance => x3:Int => g2(x3) : g3(x3) = x3 
+   * result => g1(g2(g3(x3))
    */
   def foldRightViaLeft[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
     foldLeft(xs,(y:B) => y)((g,a) => x => g(f(a,x)))(z)
