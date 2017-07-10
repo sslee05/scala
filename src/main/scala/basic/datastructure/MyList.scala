@@ -7,6 +7,9 @@ package basic.datastructure
  * 구하는 것 같은 것은 효율이 떨어 진다.
  * Vector는 임의이 접근,갱신,head,tail,init,상수시간 요소추가를 지원한다.
  * 
+ * 아래의 예는 recursive => fold => append => flat으로 이여지는 과정을 보여 준다.
+ * 이는 좀더 나아가 map => flatMap => filter 등 목록을 가지고 일반화 하는 함수들을 작성 할 수 있게 한다.
+ * 
  * foldLeft & foldRight 
  * foldLeft는 tail recursive 하기때문에 stack over flow 의 위험에 노출 되지 않는다. 반면 foldRight는 그러하지 못하다. 
  * function 은 수학의 공식과 같다. 
@@ -139,7 +142,36 @@ object MyList {
   def foldLeftViaRight[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
     foldRight(xs,(y:B) => y)((a,g) => x => g(f(x,a)))(z) 
   }
-
+  
+  def appendViaFoldLeft[A](xs:MyList[A],ys:MyList[A]):MyList[A] = {
+    foldLeft(xs,(y:MyList[A]) => y)((f,e) => x => f(MyCons(e,x)))(ys)
+  }
+  
+  def appendViaFoldRight[A](xs:MyList[A],ys:MyList[A]):MyList[A] = {
+    //use tail recursive
+    foldRightViaLeft(xs,ys)((x,ys1) => MyCons(x,ys1))
+  }
+  
+  def myFlat[A](xs:MyList[MyList[A]]):MyList[A] = {
+    //use tail recursive
+    foldRightViaLeft(xs,MyNil:MyList[A])((x,z) => appendViaFoldLeft(x,z))
+  }
+  
+  def myMap[A,B](xs:MyList[A])(f:A => B):MyList[B] = {
+    //use tail recursive
+    foldRightViaLeft(xs,MyNil:MyList[B])((x,z) => MyCons(f(x),z))
+  }
+  
+  def myFilter[A](xs:MyList[A])(p:A => Boolean):MyList[A] = {
+    //use tail recursive
+    foldRightViaLeft(xs,MyNil:MyList[A])((e,z) => if(p(e)) MyCons(e,z) else z)
+  }
+  
+  def myFlatMap[A,B](xs:MyList[A])(f:A => MyList[B]):MyList[B] = {
+    //foldRightViaLeft(xs,MyNil:MyList[B])((x,z) => appendViaFoldRight(f(x),z))
+    myFlat(myMap(xs)(f))
+  }
+  
 }
 
 sealed trait MyList[+A]
@@ -185,10 +217,50 @@ object MyListTest extends App {
   val result10 = MyList reverse xs
   println(result10)
   
+  val result11 = MyList appendViaFoldLeft(MyList(1,2,3,4,5),MyList(6,7,8,9,10))
+  println(result11)
+  
+  val result12 = MyList appendViaFoldRight(MyList(1,2,3,4,5),MyList(6,7,8,9,10))
+  println(result12)
+  
+  val result13 = MyList myFlat(MyList(MyCons(1,MyNil),MyCons(2,MyNil),MyCons(3,MyNil)))
+  println(result13)
+  
+  val result14 = MyList.myMap(MyList(1,2,3,4,5,6,7,8,9,10))(x => x + 1)
+  println(result14)
+  
+  val result15:MyList[String] = MyList.myMap(MyList(1.0,2.0,3.0,4.0,5.0))(x => x.toString)
+  println(result15)
+  
+  val result16 = MyList.myFilter(MyList(1,2,3,4,5,6,7,8,9,10))(x => x > 4)
+  println(result16)
+  
+  val result17 = MyList.myFlatMap(MyList(MyCons(1,MyNil),MyCons(2,MyNil),MyCons(3,MyNil)))(xs1 => MyList.myMap(xs1)(x1 => x1 * 2))
+  println(result17)
   
   def test02[A,B](a:A,b:B)(f:(B,A) => B) = f(b,a)
   def test03[A,B](a:A,b:B)(f:(A,B) => B):B = {
     test02(a,(b:B) => b)((g,a) => z => g(f(a,z)))(b:B)
   }
+  
+  def hasSubsequence[A](xs:MyList[A],ys:MyList[A]):Boolean = {
+    xs match {
+      case MyNil => true
+      case MyCons(h,t) => if(isBe(h,ys)) hasSubsequence(t,ys) else false
+    }
+  }
+  
+  def isBe[A](x:A,ys:MyList[A]):Boolean = {
+    ys match {
+      case MyNil => false
+      case MyCons(h,t) => if(h == x) true else isBe(x,t) 
+    }
+  }
+  
+  
+  val xs18 = MyList(1,2,3,4,5)
+  val ys18 = MyList(1,2,3,4,5,6,7,8,9,10)
+  println(hasSubsequence(xs18,ys18))
+  
   
 }
