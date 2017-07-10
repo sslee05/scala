@@ -87,23 +87,6 @@ object MyList {
     }
   }
   
-  def foldRight[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
-    xs match {
-      case MyNil => z
-      case MyCons(h,t) => f(h,foldRight(t,z)(f))
-    }
-  }
-  
-  /**
-   * flow 1 (1,2::Nil) :  right.f(1,right(2::Nil,z => z))
-   * flow 2 (2::Nil)   :  right.f(2,right(Nil,z => z))
-   * flow 3 (Nil)      :  z => z
-   * turn
-   */
-  def foldLeftViaRight[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
-    foldRight(xs,(y:B) => y)((a,g) => x => g(f(x,a)))(z) 
-  }
-  
   
   /**
    * foldLeft는 tail recursive 하므로 stack over flow 발생하지 않는다.
@@ -111,12 +94,13 @@ object MyList {
    * foldRight를 tail recursive하게 foldLeft를 이용하여 다시 작성하라.
    * 여기서 foldLeft에서 f(z,h)의 결과가 x:Int => Int 인 Function1 instance 임을 생각하라.
    * 
-   * work flow 은 다음과 같다.
+   * work flow 은 다음과 같다.f(x) = x + 1 일경우 
    * foldLeft가 실행되는 flow
-   * flow 1 (1,2::Nil) :   left(2::Nil,x1:Int => g1:(1 + x1) )           : g1(x1) = 1 + x1
-   * flow 2 (2,Nil)    :   left(Nil,x2:Int => g2:(2 + x2) )              : g2(x2) = 2 + x2
-   * flow 3 (Nil)      :   return function1 instance => x3:Int => g2(x3) : g3(x3) = x3 
-   * result => g1(g2(g3(x3))
+   * flow 1 (1,(2::3::Nil)) :   left(2,(3::Nil),  f1(x1) = (1 + x1) )   
+   * flow 2 (2,(3::Nil))    :   left(3::Nil),     f2(x2) = (2 + x2) )    x1 = 2 + x2
+   * flow 3 (3::Nil)        :   left(Nil)         f3(x3) = (3 + x3) )    x2 = 3 + x3
+   * fow  4 (Nil)           :   return function1 instance f3
+   * result => f(x) = f1(f2(f3(x)))
    */
   def foldRightViaLeft[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
     foldLeft(xs,(y:B) => y)((g,a) => x => g(f(a,x)))(z)
@@ -136,6 +120,24 @@ object MyList {
   def foldRightSolve[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
     val fn:B=>B = foldLeftSolve(xs,(y:B) => y)((g,a) => x => g(f(a,x)))
     fn(z)
+  }
+  
+  def foldRight[A,B](xs:MyList[A],z:B)(f:(A,B) => B):B = {
+    xs match {
+      case MyNil => z
+      case MyCons(h,t) => f(h,foldRight(t,z)(f))
+    }
+  }
+  
+  /**
+   * flow 1 (1,(2::3::Nil) ) :  right.f(1,right((2::3::Nil,  f1(x1) = x1) )  g1(x1) = x1 + 1 : 
+   * flow 2 (2,(3::Nil)      :  right.f(2,right(3::Nil,      f1(x1) = x1) )  g2(x2) = x2 + 2 : x2 = g1(x1)
+   * flow 3 (Nil)            :  right.f(3,right(Nil,         f1(x1) = x1) )  g3(x1) = x1 + 3 : x1 = g2(x2)
+   * flow 4 								 :  return f1(x1) = x1
+   * result => g(x) = g3(g2(g1(x)))
+   */
+  def foldLeftViaRight[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
+    foldRight(xs,(y:B) => y)((a,g) => x => g(f(x,a)))(z) 
   }
 
 }
