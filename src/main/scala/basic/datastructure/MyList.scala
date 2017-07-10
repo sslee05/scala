@@ -133,7 +133,7 @@ object MyList {
    * flow 1 (1,(2::3::Nil) ) :  right.f(1,right((2::3::Nil,  f1(x1) = x1) )  g1(x1) = x1 + 1 : 
    * flow 2 (2,(3::Nil)      :  right.f(2,right(3::Nil,      f1(x1) = x1) )  g2(x2) = x2 + 2 : x2 = g1(x1)
    * flow 3 (Nil)            :  right.f(3,right(Nil,         f1(x1) = x1) )  g3(x1) = x1 + 3 : x1 = g2(x2)
-   * flow 4 								 :  return f1(x1) = x1
+   * flow 4                  :  return f1(x1) = x1
    * result => g(x) = g3(g2(g1(x)))
    */
   def foldLeftViaRight[A,B](xs:MyList[A],z:B)(f:(B,A) => B):B = {
