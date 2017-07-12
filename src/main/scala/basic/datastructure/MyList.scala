@@ -257,7 +257,6 @@ object MyListTest extends App {
     }
   }
   
-  
   val xs18 = MyList(1,2,3,4,5)
   val ys18 = MyList(1,2,3,4,5,6,7,8,9,10)
   println(hasSubsequence(xs18,ys18))
