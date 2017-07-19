@@ -1,4 +1,4 @@
-package basic
+package basic.preview
 
 object ImplicitTest extends App {
   

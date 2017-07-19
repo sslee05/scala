@@ -1,7 +1,5 @@
-package basic
+package basic.preview
 
-import scala.runtime.ScalaNumberProxy
-import scala.runtime.RichInt
 import scala.Proxy.Typed
 
 object ViewBoundExample extends App {

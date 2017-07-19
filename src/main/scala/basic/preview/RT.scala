@@ -1,4 +1,4 @@
-package basic
+package basic.preview
 
 /**
  * 참조투명성 검증 치환모형
