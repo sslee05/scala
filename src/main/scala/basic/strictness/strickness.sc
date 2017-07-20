@@ -33,7 +33,21 @@ object strickness {
     
   
   
-  
+  def mayBeTwice(b: Boolean, i: => Int): Int = if (b) i + i else 1
+                                                  //> mayBeTwice: (b: Boolean, i: => Int)Int
+
+  def mayBeTwiceCache(b: Boolean, i: => Int): Int = {
+    lazy val j = i
+    if (b) j + j else 1
+  }                                               //> mayBeTwiceCache: (b: Boolean, i: => Int)Int
+
+  println(mayBeTwice(true, { println("called"); 2 }))
+                                                  //> called
+                                                  //| called
+                                                  //| 4
+  println(mayBeTwiceCache(true, { println("called"); 3 }))
+                                                  //> called
+                                                  //| 6
   
   
 }

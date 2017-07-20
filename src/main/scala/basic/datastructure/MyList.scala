@@ -99,9 +99,9 @@ object MyList {
    * 
    * work flow 은 다음과 같다.f(x) = x + 1 일경우 
    * foldLeft가 실행되는 flow
-   * flow 1 (1,(2::3::Nil)) :   left(2,(3::Nil),  f1(x1) = (1 + x1) )   
-   * flow 2 (2,(3::Nil))    :   left(3::Nil),     f2(x2) = (2 + x2) )    x1 = 2 + x2
-   * flow 3 (3::Nil)        :   left(Nil)         f3(x3) = (3 + x3) )    x2 = 3 + x3
+   * flow 1 (1,(2::3::Nil)) :   left(2,(3::Nil),  f1(x1) = (1 + x1)   )   
+   * flow 2 (2,(3::Nil))    :   left(3::Nil),     f2(x2) = f1(2 + x2) )    x1 = 2 + x2
+   * flow 3 (3::Nil)        :   left(Nil)         f3(x3) = f2(3 + x3) )    x2 = 3 + x3
    * fow  4 (Nil)           :   return function1 instance f3
    * result => f(x) = f1(f2(f3(x)))
    */
