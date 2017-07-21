@@ -81,6 +81,9 @@ sealed trait Stream[+A] {
     
   def filter(p:A => Boolean):Stream[A] = 
     foldRight(empty[A])((a,b) => if(p(a)) cons(a,b) else b)
+    
+  
+  
 }
 
 /**
@@ -191,7 +194,53 @@ object Stream {
     unfold(xs){
       case Cons(h,t) if p(h()) => Some( (h(),t()) )
       case _ => None
+    }
+  
+  def zipWithViaUnfold[A,B,C](xs:Stream[A],ys:Stream[B])(f:(A,B) => C):Stream[C] = 
+    unfold((xs,ys)){
+      case (Empty,_) => None
+      case (_,Empty) => None
+      case (Cons(h1,t1),Cons(h2,t2)) => Some((f(h1(),h2()),(t1(),t2()))) 
+    }
+  
+  def zipAllViaUnfold[A,B](xs:Stream[A],ys:Stream[B]):Stream[(Option[A],Option[B])] = 
+    unfold((xs,ys)) {
+      case (Empty,Cons(h,t)) => Some(( (None,Some(h())) , (empty[A],t()) ))
+      case (Cons(h,t),Empty) => Some(( (Some(h()),None), (t(),empty[B]) ))
+      case (Cons(h1,t1),Cons(h2,t2)) => Some(( (Some(h1()),Some(h2())) , (t1(),t2()) ))
+      case (Empty,Empty) => None
+    }
+  
+  /**
+   * Stream(1,2,3,4,5) 와 Stream(2,3,4) true Stream(4,5) true
+   */
+  def subSequence[A](sup:Stream[A])(sub:Stream[A]):Boolean = {
+    sub.foldRight(true)((a,b) => sup.exist(x => x == a) && b)
   }
+  
+  /**
+   * Stream(1,2,3,4,5) 와 Stream(1,2,3) 은 true Stream(2,3,4) 는 false
+   */
+  def startsWith[A](sup:Stream[A],sub:Stream[A]):Boolean = {
+    zipAllViaUnfold(sup,sub).takeWhile(x => !x._2.isEmpty).forAll(x => x._1 == x._2)
+  }
+  
+  /**
+   * unfold 를 이용하여 다음을 구성하라. 
+   * Stream(1,2,3) 에 대하여 Stream(Stream(1,2,3),Stream(2,3),Stream(3),Stream()) 을 
+   * 반환 해야 한다.
+   */
+  def tails[A](xs:Stream[A]):Stream[Stream[A]] = {
+    unfold(xs) {
+      case Cons(h,t) => Some(( cons(h(),t()) , t() ))
+      case Empty => None
+    } append Stream(empty)
+  }
+  
+  def subSequence02[A](sup:Stream[A],sub:Stream[A]):Boolean = 
+    tails(sup).exist(x => startsWith(x,sub))
+    
+  
 }
 
 object StreamDriver extends App {
@@ -276,4 +325,28 @@ object StreamDriver extends App {
   
   val xs08 = takeWhileViaUnfold(xs05)(x => x < 13)
   println(xs08.toList)
+  
+  val xs0901 = Stream(1,2,3,4,5)
+  val xs0902 = Stream(6,7,8,9,10,11)
+  val rs09 = zipWithViaUnfold(xs0901,xs0902)((x,y) => x + y)
+  println(rs09.toList)
+  
+  val rs10 = zipAllViaUnfold(xs0901,xs0902)
+  println(rs10.toList)
+  
+  val xs1001 = Stream(1,2,3,4,5)
+  val xs1002 = Stream(1,2,3,4,6)
+  
+  println(subSequence(xs1001)(xs1002))
+  
+  val xs1101 = Stream(1,2,3,4,5)
+  val xs1102 = Stream(1,2,3)
+  println(startsWith(xs1101,xs1102))
+  
+  println(tails(xs1102).toList)
+  
+  val xs1201 = Stream(1,2,3,4,5)
+  val xs1202 = Stream(3,4)
+  println(subSequence02(xs1201,xs1202))
+
 }
