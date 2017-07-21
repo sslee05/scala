@@ -20,6 +20,7 @@ sealed trait Stream[+A] {
       case Empty => empty
       case Cons(h,t) if(n > 0) => cons(h(),t().take(n-1))
       case Cons(h,_) if(n == 1) => cons(h(),empty)
+      case _ if n <= 0 => empty
     }
   }
   
@@ -104,6 +105,93 @@ object Stream {
     if(xs.isEmpty) empty
     else cons(xs.head,apply(xs.tail:_*))
   }
+  
+  //############### infinite #################
+  
+  def ones:Stream[Int] = cons(1,ones)
+  
+  def constant[A](a:A):Stream[A] = {
+    lazy val tail:Stream[A] = Cons(() => a,() => tail)
+    tail
+  }
+  
+  def constant02[A](a:A):Stream[A] = {
+    cons(a,constant02(a))
+  }
+  
+  /**
+   * n에서 시작해서 n+1,n+2 이어지는 무한정수 stream을
+   * 생성하는 함수를 작성하라.
+   */
+  def from(n:Int):Stream[Int] ={
+    cons(n,from(n+1))
+  }
+  
+  /**
+   * fibo 수 0,1,1,2,3,5,8,13 ... 로 이루어진
+   * 무한 stream를 생성하는 fibs를 작성하
+   */
+  def fibs:Stream[Int] = {
+    def go(cur:Int,pre:Int):Stream[Int] = {
+      cons(pre,go(pre + cur,cur))
+    }
+    
+    go(1,0)
+  }
+  
+  /**
+   * 일반화된 Stream 구축 함수를 작성 하라.
+   * 이 함수는 초기상태 하나와 다음 상태 및 다음 값(생성된 Stream 안의)를 
+   * 산출하는 함수 하나를 받아야 한다.
+   */
+  def unfold[A,S](z:S)(f:S => Option[(A,S)]):Stream[A] = {
+    f(z) match {
+      case Some((h,t)) => cons(h,unfold(t)(f))
+      case None => empty
+    }
+  }
+  
+  /**
+   * unfold를 이용하여 fibs 를 재정의 하라.
+   */
+  def fibsViaUnfold:Stream[Int] = 
+    unfold((0,1)){ case (x,y) => Some((x,(y,x+y)))}
+  
+  /**
+   * unfold를 이용하여 from를 재정의 하라.
+   */
+  def fromViaUnfold(n:Int):Stream[Int] = 
+    unfold(1){ x => Some((x,x + 1))}
+  
+  /**
+   * unfold를 이용하여 constant를 재정의 하라.
+   */
+  def constantViaUnfold(n:Int):Stream[Int] = 
+    unfold(n){ x => Some(x,x) }
+  
+  def onesViaUnfold:Stream[Int] =
+    unfold(1){ x => Some(x,x) }
+  
+  /**
+   * unfold를 이용해서 map를 재정의 하라.
+   */
+  def mapViaUnfold[A,B](xs:Stream[A])(f:A => B):Stream[B] = 
+    unfold(xs) { 
+      case Cons(h,t) => Some((f(h()),t()))
+      case _ => None
+    }
+  
+  def takeViaUnfold[A](xs:Stream[A])(n:Int):Stream[A] = 
+    unfold((xs,n)){  
+      case (Cons(h,t),x) if(x > 0) => Some((h(),(t(),x-1)))
+      case _ => None
+    }
+  
+  def takeWhileViaUnfold[A](xs:Stream[A])(p:A => Boolean):Stream[A] = 
+    unfold(xs){
+      case Cons(h,t) if p(h()) => Some( (h(),t()) )
+      case _ => None
+  }
 }
 
 object StreamDriver extends App {
@@ -154,5 +242,38 @@ object StreamDriver extends App {
   println(rs03)
   
   println(xs filter(_ > 4) headOption)
-
+  
+  //##############################################
+  //############### infinite #####################
+  //##############################################
+  val rs04 = ones.take(5)
+  println(ones.take(5).toList)
+  println(ones exist (x => x % 2 != 0) )
+  println(ones.map(x => x + 1).exist(x => x % 2 == 0))
+  
+  println(constant[Int](1))
+  println(constant02[Int](1))
+  
+  val test01 = constant[Int](1)
+  val test02 = constant02[Int](1)
+  println(test01.take(5).toList)
+  println(test02.take(5).toList)
+  
+  val test03 = from(1)
+  println(test03.take(5).toList)
+  
+  val xs04 = fibsViaUnfold
+  println(xs04.take(8).toList)
+  
+  val xs05 = fromViaUnfold(5)
+  println(xs05.take(10).toList)
+  
+  val xs06 = mapViaUnfold(xs04)(x => x + 1)
+  println(xs06.take(10).toList)
+  
+  val xs07 = takeViaUnfold(xs05)(3)
+  println(xs07.toList)
+  
+  val xs08 = takeWhileViaUnfold(xs05)(x => x < 13)
+  println(xs08.toList)
 }
