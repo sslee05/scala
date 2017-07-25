@@ -14,9 +14,7 @@ sealed trait Stream[+A] {
         case Cons(h,t) => go(t(),f(h(),z))(f)
       }
     }
-    
     go(this,(y:List[A]) => y)((a,g) => x => g(a::x))(Nil:List[A])
-    
   }
   
   def takeOrigin(n:Int):Stream[A] = {
@@ -107,7 +105,8 @@ sealed trait Stream[+A] {
    */
   def zipWith[B,C](xs:Stream[B])(f:(A,B) => C):Stream[C] = 
     unfold((this,xs)){
-      case (Cons(h1,t1),Cons(h2,t2)) => Some((f(h1(),h2()) , (t1(),t2()) ))
+      case (Cons(h1,t1),Cons(h2,t2)) => 
+        Some((f(h1(),h2()) , (t1(),t2()) ))
       case _ => None
     }
   
@@ -118,8 +117,10 @@ sealed trait Stream[+A] {
     unfold((this,xs)){
       case  (Cons(h1,t1),Cons(h2,t2)) => 
               Some(( (Some(h1()),Some(h2()) ),(t1(),t2()) ))
-      case  (Cons(h1,t1),Empty) => Some(( (Some(h1()),None), (t1(),Empty) ))
-      case  (Empty,Cons(h2,t2)) => Some(( ( None , Some(h2())) , (Empty,t2()) ))
+      case  (Cons(h1,t1),Empty) => 
+              Some(( (Some(h1()),None), (t1(),Empty) ))
+      case  (Empty,Cons(h2,t2)) => 
+              Some(( ( None , Some(h2())) , (Empty,t2()) ))
       case  (Empty,Empty) => None
     }
   
@@ -135,6 +136,18 @@ sealed trait Stream[+A] {
    */
   def subSequence[A](sub:Stream[A]):Boolean = 
     sub.foldRight(true)((x,y) => this.exist(a => a == x) && y )
+    
+  /**
+   * tail를 일반화한 scanRight 함수를 작성하라 
+   * Stream(1,2,3) 의 f:(a,b) => a + b의 
+   * scanRight의 결과는 Stream(6,5,3,0) 이어야 한다.
+   */
+  def scanRight[B](z:B)(f:(A, => B) => B):Stream[B] = 
+    foldRight((z,Stream(z)))((a,b) => {
+      lazy val cal = b // foldRight의 t().foldRight(z)(f):(B,Stream(B))
+      val calVal = f(a,cal._1) //call-by-name
+      (calVal,cons(calVal,cal._2))//call-by-name
+    })._2
 }
 
 /**
@@ -233,11 +246,16 @@ object Stream {
       case Empty => None
     } append empty
   }
-    
+  
 }
 
 object StreamDriver extends App {
   
+  val xs = Stream(1,2,3)
+  val rs = xs.scanRight(0)((a,b) => a + b)
+  println(rs.toList)
+  
+  /*
   //takeWhileOrigin test
   val xs = Stream(1,4,5,6,3,2)
   println(xs.takeWhileOrigin(x => x > 3).toList)
@@ -325,6 +343,7 @@ object StreamDriver extends App {
   
   //test subSequence
   println(startWithXs subSequence startWithYx)
+  */
   
 }
 
