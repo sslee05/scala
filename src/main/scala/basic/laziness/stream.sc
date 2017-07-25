@@ -121,4 +121,14 @@ object stream {
   
   //test subSequence
   println(startWithXs subSequence startWithYx)    //> true
+  
+  //test scanRight
+  // a + b에서 b 부분에서 t().foldRight(z)(f) 부분이 평가 됨.
+  val scanRightXs = Stream(1,2,3)                 //> scanRightXs  : basic.laziness.Stream[Int] = Cons(basic.laziness.Stream$$$La
+                                                  //| mbda$9/932607259@146ba0ac,basic.laziness.Stream$$$Lambda$10/1740000325@4dfa
+                                                  //| 3a9d)
+  val rs = scanRightXs.scanRight(0)((a,b) => a + b)
+                                                  //> rs  : basic.laziness.Stream[Int] = Cons(basic.laziness.Stream$$$Lambda$9/93
+                                                  //| 2607259@598067a5,basic.laziness.Stream$$$Lambda$10/1740000325@3c0ecd4b)
+  println(rs.toList)                              //> List(6, 5, 3, 0)
 }

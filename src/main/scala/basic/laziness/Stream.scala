@@ -251,11 +251,6 @@ object Stream {
 
 object StreamDriver extends App {
   
-  val xs = Stream(1,2,3)
-  val rs = xs.scanRight(0)((a,b) => a + b)
-  println(rs.toList)
-  
-  /*
   //takeWhileOrigin test
   val xs = Stream(1,4,5,6,3,2)
   println(xs.takeWhileOrigin(x => x > 3).toList)
@@ -343,7 +338,12 @@ object StreamDriver extends App {
   
   //test subSequence
   println(startWithXs subSequence startWithYx)
-  */
+  
+  //test scanRight
+  // a + b에서 b 부분에서 t().foldRight(z)(f) 부분이 평가 됨.
+  val scanRightXs = Stream(1,2,3)
+  val rs = scanRightXs.scanRight(0)((a,b) => a + b)
+  println(rs.toList)
   
 }
 
