@@ -72,9 +72,12 @@ object State {
   def get[S]:State[S,S] = State(s => (s,s))
   def set[S](s:S):State[S,Unit] = State( _ => ((),s))
   
-  def modify[S](f: S => S):State[S,Unit] = for {
-    s <- get // State(Maichine(true,10,1) => (Maichine(true,10,1),Maichine(true,10,1)) ) 
-    s2 <- set(f(s)) //set(f:Machine(true,10,1) => Machine(false,10,2) )
+  def modify[S](f: S => S): State[S,Unit] = 
+    get.flatMap(s => set(f(s)))
+    
+  def modifyFor[S](f: S => S):State[S,Unit] = for {
+    s <- get  
+    s2 <- set(f(s))
   }yield()
 }
 
@@ -95,16 +98,15 @@ object CandySlotMachine {
       case (Turn, Machine(false, candy, coin)) => 
         Machine(true,candy - 1, coin)
     }
-    
-  def simulatedMachine(inputs:List[Input]): State[Machine,(Int,Int)] = for {
+  
+  def simulatedMachine(input: List[Input]): State[Machine,(Int,Int)] = 
+    sequence(input map(modify[Machine] _ compose update)).flatMap(n => get.map(s => (s.candies,s.coins)))
+  
+  def simulatedMachineFor(inputs:List[Input]): State[Machine,(Int,Int)] = for {
     _ <- sequence(inputs map (modify[Machine] _ compose update))
     s <- get
   } yield(s.coins,s.candies)
   
-  def simulatedMachineViaFlatMap(inputs: List[Input]): State[Machine,(Int,Int)] = {
-    val xs = sequence(inputs map(modify[Machine] _ compose update))
-    xs.flatMap(x => get.map(y => (y.coins,y.candies)))
-  }
 }
 
 /**
