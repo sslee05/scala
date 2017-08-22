@@ -1,87 +1,57 @@
 package basic.datastructure
 
+trait MyTree[+A]
+case class Node[+A](n: A) extends MyTree[A]
+case class Branch[+A](l: MyTree[A], r: MyTree[A]) extends MyTree[A]
+
 object MyTree {
   
-  /**
-   * leaf 과 branch 갯수 구하기 
-   */
-  def size[A](t:MyTree[A]):Int = {
-    t match {
-      case MyLeaf(_) => 1
-      case MyBranch(l,r) => 1 + size(l) + size(r)
+  def size[A](t: MyTree[A]): Int = t match {
+    case Node(x) => 1
+    case Branch(l,r) => 1 + size(l) + size(r)
+  }
+  
+  def maximum[A](t:MyTree[A])(implicit ord: Ordering[A]): A = t match {
+    case Node(x) => x
+    case Branch(l,r) => {
+      val lv = maximum(l)
+      val rv = maximum(r)
+      if(ord.lt(lv, rv)) rv else lv
     }
   }
   
-  /**
-   * node 에서 가자 큰 값 구하기 
-   */
-  def maximum(t:MyTree[Int]):Int = {
-    t match {
-      case MyLeaf(n) => n
-      case MyBranch(l,r) => maximum(l) max maximum(r)
-    }
+  def depth[A](t: MyTree[A]): Int = t match {
+    case Node(x) => 1
+    case Branch(l,r) => depth(l) max depth(r)
   }
   
-  /**
-   * 가장 긴 depth 길이 구하
-   */
-  def depth[A](t:MyTree[A]):Int = {
-    t match {
-      case MyLeaf(_) => 1
-      case MyBranch(l,r) => 1 + (depth(l) max depth(r))
-    }
+  def map[A,B](t: MyTree[A])(f: A => B): MyTree[B] = t match {
+    case Node(x) => Node(f(x))
+    case Branch(l,r) => Branch(map(l)(f),map(r)(f))
   }
   
-  /**
-   * map 적용 하기 
-   */
-  def map[A,B](t:MyTree[A])(f:A => B):MyTree[B] = {
-    t match {
-      case MyLeaf(n) => MyLeaf(f(n))
-      case MyBranch(l,r) => MyBranch(map(l)(f),map(r)(f))
-    }
+  def fold[A,B](t: MyTree[A])(f: A => B)(g: (B,B) => B): B = t match {
+    case Node(a) => f(a)
+    case Branch(l,r) => g(fold(l)(f)(g),fold(r)(f)(g)) 
   }
   
-  /**
-   * fold 연산 만들기 
-   */
-  def fold[A,B](t:MyTree[A])(f:A => B)(g:(B,B) => B):B = {
-    t match {
-      case MyLeaf(n) => f(n)
-      case MyBranch(l,r) => g(fold(l)(f)(g),fold(r)(f)(g))
-    }
-  }
-  
-  /**
-   * fold로 size 구현하기 
-   */
-  def sizeViaFold[A](t:MyTree[A]):Int = {
-    fold(t)(a => 1)( (c1,c2) => 1 + c1 + c2)
-  }
-  
-  /**
-   * fold 로 maximum 구현하기 
-   */
-  def maximumViaFold(t:MyTree[Int]):Int = {
-    fold(t)(a => a)((c1,c2) => c1 max c2)
-  }
-  
-  /**
-   * fold 로 depth 구현하기 
-   */
-  def depthViaFold[A](t:MyTree[A]):Int = {
-    fold(t)(a => 1)((c1,c2) => 1 + (c1 max c2))
-  }
-  
-  /**
-   * fold 로 map 구현하기 
-   */
-  def mapViaFold[A,B](t:MyTree[A])(f:A => B):MyTree[B] = {
-    fold(t)(a => MyLeaf(f(a)):MyTree[B])((c1,c2) => MyBranch(c1,c2))
-  }
+  def sizeViaFold[A](t: MyTree[A]): Int = 
+    fold(t)(a => 1)( (l,r) => 1 + l + r)
+    
+  def depthViaFold[A](t: MyTree[A]): Int = 
+    fold(t)(a => 1)((l,r) => l max r)
+    
+  def maxViaFold[A](t: MyTree[A])(implicit ord: Ordering[A]): A = 
+    fold(t)(a => a)((l,r) => if(ord.lt(l,r)) r else l)
   
 }
 
-sealed trait MyTree[+A]
-sealed case class MyLeaf[+A](n:A) extends MyTree[A]
-sealed case class MyBranch[+A](l:MyTree[A],r:MyTree[A]) extends MyTree[A]
+object MyTreeDriver extends App {
+  import basic.datastructure.MyTree._
+  
+  val t = Branch(Branch(Node(1),Node(2)),Branch(Branch(Node(4),Node(5)),Node(6)))
+  println(maximum(t))
+  println(fold(t)(a => Node(a * 2):MyTree[Int])((l,r) => Branch(l,r)))   
+  println(maxViaFold(t))
+      
+}
