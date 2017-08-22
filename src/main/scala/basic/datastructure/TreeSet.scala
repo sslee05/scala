@@ -11,9 +11,9 @@ trait TreeSet[+A] {
     }
   }
   
-  def fold[B](z: B)(f: A => B)(g: (B,B,B) => B): B = this match {
+  def fold[B](z: B)(f: (A,B) => B)(g: (B,B,B) => B): B = this match {
     case EmptySet => z
-    case BranchSet(e,l,r) => g(f(e),l.fold(z)(f)(g),r.fold(z)(f)(g))
+    case BranchSet(e,l,r) => g(f(e,z),l.fold(z)(f)(g),r.fold(z)(f)(g))
   }
   
   def union[T >: A](t: TreeSet[T])(implicit ord: Ordering[T]): TreeSet[T] = this match {
@@ -21,8 +21,9 @@ trait TreeSet[+A] {
     case BranchSet(e,l,r) => l union (r union (t.addEl(e))) 
   }
   
+  
   def filter[T >: A](p: T => Boolean)(implicit ord: Ordering[T]): TreeSet[T] = 
-    fold(EmptySet:TreeSet[T])(x => if(p(x)) BranchSet(x,EmptySet,EmptySet) else EmptySet)((a,b,c) => a union (b union c) )
+    fold(EmptySet:TreeSet[T])((a,b) => if(p(a)) b addEl a else EmptySet)((a,b,c) => a union (b union c) )
     
   def contains[T >: A](t: T)(implicit ord: Ordering[T]): Boolean = this match {
     case EmptySet => false
@@ -31,7 +32,7 @@ trait TreeSet[+A] {
   }
   
   def remove[T >: A](t: T)(implicit ord: Ordering[T]): TreeSet[T] =
-    fold(EmptySet: TreeSet[T])( a => if(a == t) EmptySet else BranchSet(a,EmptySet,EmptySet))((a,b,c) => a union (b union c))
+    fold(EmptySet: TreeSet[T])( (a,b) => if(a == t) EmptySet else b addEl a)((a,b,c) => a union (b union c))
 }
 
 case object EmptySet extends TreeSet[Nothing] 
