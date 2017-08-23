@@ -33,20 +33,20 @@ sealed trait MyEither[+E,+A] {
   
 }
 
+sealed case class MyRight[+A](value:A) extends MyEither[Nothing,A]
+sealed case class MyLeft[+E](e:E) extends MyEither[E,Nothing]
+
 object MyEither {
   def sequence[E,A](xs:List[MyEither[E,A]]):MyEither[E,List[A]] = {
-    xs.foldRight[MyEither[E,List[A]]](MyRight(Nil:List[A]))((x,g) => g.map2(x)((g1,x1) => x1::g1))
+    xs.foldRight[MyEither[E,List[A]]](MyRight(Nil))((x,g) => g.map2(x)((g1,x1) => x1::g1))
   }
   
   def traverse[E,A,B](xs:List[A])(f:A => MyEither[E,B]):MyEither[E,List[B]] = {
     //sequence(xs map f)
-    xs.foldRight[MyEither[E,List[B]]](MyRight(Nil:List[B]))((x,g) => g.map2(f(x))((g1,x1) => x1::g1 ))
+    xs.foldRight[MyEither[E,List[B]]](MyRight(Nil))((x,g) => g.map2(f(x))((g1,x1) => x1::g1 ))
   }
   
   def sequenceViaTraverse[E,A](xs:List[MyEither[E,A]]):MyEither[E,List[A]] = {
     traverse(xs)(x => x)
   }
 }
-
-sealed case class MyRight[+A](value:A) extends MyEither[Nothing,A]
-sealed case class MyLeft[+E](e:E) extends MyEither[E,Nothing]

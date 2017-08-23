@@ -21,9 +21,9 @@ trait TreeSet[+A] {
     case BranchSet(e,l,r) => l union (r union (t.addEl(e))) 
   }
   
-  
   def filter[T >: A](p: T => Boolean)(implicit ord: Ordering[T]): TreeSet[T] = 
-    fold(EmptySet:TreeSet[T])((a,b) => if(p(a)) b addEl a else EmptySet)((a,b,c) => a union (b union c) )
+    fold(EmptySet:TreeSet[T])((a,b) => if(p(a)) b addEl a 
+      else EmptySet)((a,b,c) => a union (b union c) )
     
   def contains[T >: A](t: T)(implicit ord: Ordering[T]): Boolean = this match {
     case EmptySet => false
@@ -32,7 +32,8 @@ trait TreeSet[+A] {
   }
   
   def remove[T >: A](t: T)(implicit ord: Ordering[T]): TreeSet[T] =
-    fold(EmptySet: TreeSet[T])( (a,b) => if(a == t) EmptySet else b addEl a)((a,b,c) => a union (b union c))
+    fold(EmptySet: TreeSet[T])( (a,b) => if(a == t) EmptySet 
+      else b addEl a)((a,b,c) => a union (b union c))
 }
 
 case object EmptySet extends TreeSet[Nothing] 
