@@ -128,13 +128,13 @@ sealed trait Stream[+A] {
    * 위의 function 들로 아래와 같은 것을 구현하라.
    * Stream(1,2,3,4,5) 와 Stream(1,2,3) 은 true Stream(2,3,4) 는 false
    */
-  def startsWith[A](sub:Stream[A]):Boolean = 
+  def startsWith[B >: A](sub:Stream[B]):Boolean = 
     sub zipAll this takeWhile(x => !x._1.isEmpty) forAll( x => x._1 == x._2 )
     
   /**
    * Stream(1,2,3,4,5) 와 Stream(2,3,4) true Stream(4,5) true
    */
-  def subSequence[A](sub:Stream[A]):Boolean = 
+  def subSequence[B >: A](sub:Stream[B]):Boolean = 
     sub.foldRight(true)((x,y) => this.exist(a => a == x) && y )
     
   /**
@@ -340,7 +340,6 @@ object StreamDriver extends App {
   println(startWithXs subSequence startWithYx)
   
   //test scanRight
-  // a + b에서 b 부분에서 t().foldRight(z)(f) 부분이 평가 됨.
   val scanRightXs = Stream(1,2,3)
   val rs = scanRightXs.scanRight(0)((a,b) => a + b)
   println(rs.toList)
