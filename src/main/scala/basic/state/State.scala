@@ -81,6 +81,12 @@ object State {
   }yield()
 }
 
+/**
+ * Input 에 따른 Machine 의 상태. Machine의 상태에 따른 candies,coin
+ * type Rand = Machine => (Machine,(Int,Int))
+ * map,flatMap(f:function) 이 실행시 f function은 State의 run실행시 반영됨.
+ * 
+ */
 sealed trait Input
 case object Coin extends Input
 case object Turn extends Input
@@ -100,7 +106,8 @@ object CandySlotMachine {
     }
   
   def simulatedMachine(input: List[Input]): State[Machine,(Int,Int)] = 
-    sequence(input map(modify[Machine] _ compose update)).flatMap(n => get.map(s => (s.candies,s.coins)))
+    sequence(input map(modify[Machine] _ compose update)).flatMap(n => 
+      get.map(s => (s.candies,s.coins)))
   
   def simulatedMachineFor(inputs:List[Input]): State[Machine,(Int,Int)] = for {
     _ <- sequence(inputs map (modify[Machine] _ compose update))
