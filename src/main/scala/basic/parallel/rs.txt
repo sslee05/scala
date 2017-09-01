@@ -1,0 +1,82 @@
+####### parMap with fork
+pool-1-thread-1:9: call unit fn:List()
+pool-1-thread-1:9:startMap2
+pool-1-thread-1:9:startMap2
+pool-1-thread-1:9:startMap2
+pool-1-thread-2:10: call unit fn:25
+pool-1-thread-3:11: call unit fn:16
+pool-1-thread-1:9:startMap2
+pool-1-thread-4:12: call unit fn:9
+pool-1-thread-1:9:startMap2
+pool-1-thread-5:13: call unit fn:36
+pool-1-thread-1:9: call unitProcess fn:List()
+pool-1-thread-4:12: call unitProcess fn:9
+pool-1-thread-2:10: call unitProcess fn:25
+pool-1-thread-5:13: call unitProcess fn:36
+pool-1-thread-3:11: call unitProcess fn:16
+pool-1-thread-1:9:java.util.concurrent.FutureTask@3ebdc8a1:UnitFuture(List())
+pool-1-thread-3:11:16
+pool-1-thread-2:10:25
+pool-1-thread-5:13:36
+pool-1-thread-4:12:9
+pool-1-thread-3:11: call unit fn:1
+pool-1-thread-3:11: call unitProcess fn:1
+pool-1-thread-3:11:1
+pool-1-thread-1:9:java.util.concurrent.FutureTask@74ba3a28:UnitFuture(List(1))
+pool-1-thread-1:9:java.util.concurrent.FutureTask@6eefce53:UnitFuture(List(36, 1))
+pool-1-thread-1:9:java.util.concurrent.FutureTask@306fa47e:UnitFuture(List(9, 36, 1))
+pool-1-thread-1:9:java.util.concurrent.FutureTask@60c78a12:UnitFuture(List(16, 9, 36, 1))
+pool-1-thread-1:9:List(25, 16, 9, 36, 1)
+List(25, 16, 9, 36, 1)
+end
+
+####### parMap with strick
+main:1: call unit fn:List()
+main:1:startMap2
+main:1:startMap2
+main:1:startMap2
+pool-1-thread-1:9: call unit fn:25
+pool-1-thread-2:10: call unit fn:16
+main:1:startMap2
+pool-1-thread-3:11: call unit fn:9
+main:1:startMap2
+pool-1-thread-4:12: call unit fn:36
+main:1: call unitProcess fn:List()
+pool-1-thread-5:13: call unit fn:1
+pool-1-thread-2:10: call unitProcess fn:16
+pool-1-thread-5:13: call unitProcess fn:1
+pool-1-thread-1:9: call unitProcess fn:25
+pool-1-thread-3:11: call unitProcess fn:9
+pool-1-thread-4:12: call unitProcess fn:36
+main:1:java.util.concurrent.FutureTask@506e1b77:UnitFuture(List())
+pool-1-thread-1:9:25
+pool-1-thread-3:11:9
+pool-1-thread-2:10:16
+pool-1-thread-5:13:1
+pool-1-thread-4:12:36
+main:1:java.util.concurrent.FutureTask@9807454:UnitFuture(List(1))
+main:1:java.util.concurrent.FutureTask@3d494fbf:UnitFuture(List(36, 1))
+main:1:java.util.concurrent.FutureTask@1ddc4ec2:UnitFuture(List(9, 36, 1))
+main:1:java.util.concurrent.FutureTask@133314b:UnitFuture(List(16, 9, 36, 1))
+List(25, 16, 9, 36, 1)
+end
+
+
+
+pool-1-thread-1:9: call unit fn:1
+pool-1-thread-1:9: call unitProcess fn:1
+pool-1-thread-1:9:1
+pool-1-thread-2:10: call unit fn:36
+pool-1-thread-2:10: call unitProcess fn:36
+pool-1-thread-2:10:36
+pool-1-thread-3:11: call unit fn:9
+pool-1-thread-3:11: call unitProcess fn:9
+pool-1-thread-3:11:9
+pool-1-thread-4:12: call unit fn:16
+pool-1-thread-4:12: call unitProcess fn:16
+pool-1-thread-4:12:16
+pool-1-thread-5:13: call unit fn:25
+pool-1-thread-5:13: call unitProcess fn:25
+pool-1-thread-5:13:25
+87
+end
