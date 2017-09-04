@@ -26,8 +26,9 @@ object Paral {
     es => {
     println(Thread.currentThread.getName +":"+Thread.currentThread.getId +": call unitProcess fn:"+ a)
     Thread.sleep(2000)
-    UnitFuture(a)
-  } }
+    UnitFuture(a)} 
+  }
+  
   def map2[A,B,C](a: Paral[A], b: Paral[B])(f: (A,B) => C): Paral[C] = es => {
     println(Thread.currentThread.getName +":"+Thread.currentThread.getId +":"+"startMap2")
     
