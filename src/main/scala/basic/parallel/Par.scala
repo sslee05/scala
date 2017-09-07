@@ -7,7 +7,7 @@ import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 
 
-object Par {
+object Par { self =>
   
   type Par[A] = ExecutorService => Future[A]
   
@@ -25,6 +25,8 @@ object Par {
   def fork[A](a: => Par[A]): Par[A] = es => {
     es.submit(new Callable[A]{
       def call = {
+        println("thread"+Thread.currentThread().getName +":"+ Thread.currentThread().getId+":"+a)
+        //Thread.sleep(3000l)
         val f = a(es)
         f.get
       }
@@ -102,7 +104,31 @@ object Par {
     
   def map2Via[A,B,C](parA: Par[A], parB: Par[B])(f: (A,B) => C): Par[C] = 
     flatMap(parA)(a => map(parB)(b => f(a,b)))
+    
+  def sequenceBalance[A](xs: IndexedSeq[Par[A]]): Par[IndexedSeq[A]] = fork {
+    if(xs.isEmpty) unit(Vector())
+    else if(xs.size == 1) map(xs.head)(x => Vector(x))
+    else {
+      val (l,r) = xs.splitAt(xs.length / 2)
+      map2(sequenceBalance(l),sequenceBalance(r))((a,b) => a ++ b)
+    }
+  }
+  
+  
+  def parMap[A,B](xs: IndexedSeq[A])(f: A => B): Par[IndexedSeq[B]] =
+    sequenceBalance(xs.map(asyncF(f)))
+  
+  implicit def convertParOpt[A](par: Par[A]): ParOpt[A] = new ParOpt(par) 
+  
+  class ParOpt[A](p: Par[A]) {
+    def map2[B,C](parB: Par[B])(f: (A,B) => C): Par[C] = Par.map2(p,parB)(f)
+    def flatMap[B](f: A => Par[B]): Par[B] = Par.flatMap(p)(f)
+
+  }
+    
 }
+
+
 
 object ParDriver extends App {
   import basic.parallel.Par._
