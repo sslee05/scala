@@ -28,7 +28,9 @@ object MonadStudy {
     def map[A,B](fo: F[A])(f: A => B): F[B]
     
     //map으로 다른 일을 할 수 있다.
-    def distribute[A,B](fo: F[(A,B)])(f: A => B):(F[A],F[B]) = ???
+    def distribute[A,B](fo: F[(A,B)]):(F[A],F[B]) = 
+      (map(fo)(a => a._1) , map(fo)(b => b._2) )
+      
     def codistribute[A,B](e: Either[F[A],F[B]]): F[Either[A,B]] = e match {
       case Left(fa) => map(fa)(Left(_))
       case Right(fb) => map(fb)(Right(_))
@@ -133,6 +135,7 @@ object MonadStudy {
     }
   }
   
+  //inline으로 하면 위에 StateMonad class가 필요 없다.
   def stateMonad[S] = new Monad[({type StateS[A] = State[S,A]})#StateS] {
     def unit[A](a: => A): State[S,A] = State.unit(a)
     def flatMap[A,B](s: State[S,A])(f: A => State[S,B]): State[S,B] = 
@@ -194,6 +197,9 @@ object MonadStudy {
     //ex-14) Kleisli arrow 에 관한 compose 함수를 구현하라.
     def compose[A,B,C](f: A => F[B],g: B => F[C]): A => F[C] = 
       a => flatMap(f(a))(g)
+   
+    def mapT[A,B](fo: F[A])(f: A => B): F[B] = 
+      flatMap(fo)(a => unit(f(a)))  
       
     /**
      	Monoid의 결합법칙의 정의는 simple하고 알아보기 쉽다.
@@ -214,7 +220,7 @@ object MonadStudy {
     
     /**
      1) compose(compose(f,g),h) == compose(f,compose(g,h))
-     	  a => flatMap(compose(f,g)(a),h)   		<== compose(f,g) == a => flatMap(f(a))(g)(a)
+     	  a => flatMap(compose(f,g)(a))(h)   		<== compose(f,g) == a => flatMap(f(a))(g)(a)
      
      2) a => flatMap(compose(f,g)(a))(h) == compose(f,b => flatMap(g(b))(h))
      
@@ -241,13 +247,14 @@ object MonadStudy {
      compose의 항등원은 unit 이다.
      def unit[A](a: => A): F[A]
      
-     왼쪽 항등법칙
-     compose(f,unit) == f
-     오른쪽 항등법칙
+     left unit 항등법칙
      compopse(unit,f) == f
+     rignt unit 항등법칙
+     compose(f,unit) == f
      
-     flatMap(x)(unit) == x 
+     
      flatMap(unit(y))(f) = f(y) 
+     flatMap(x)(unit) == x 
      */
       
      //ex-17) compose(f,unit)(v) == f(v) 임을 증명하라.
@@ -277,12 +284,111 @@ object MonadStudy {
      flatMap(Some(Some(v)))(f) == f(Some(v))
      f(Some(v)) = f(Some(v))
       */
+     
+     //ex-16) join 를 flatMap를 이용하여 구현하라.
+     def join[A](mma: F[F[A]]): F[A] = 
+       flatMap(mma)(ma => ma)
+     
+     //ex-17) flatMap을 join 과 map를 이용하여 구현하라.
+     def flatMapViaJoin[A,B](a: F[A])(f: A => F[B]): F[B] = 
+       join(map(a)(a1 => f(a1)))
+       
+     //ex-18) compose를 join 과 map를 이용하여 구현하라.
+     def composeViaJoin[A,B,C](f: A => F[B])(g: B => F[C]):A =>  F[C] =
+       a => join(map(f(a))(g))
+       
+     
+       
+     //################ Monad 정리  ##################
+     /**
+     지금까지 본 것으로 Monad 의 조합기의 최소 set(집합) 은 3가지 유형이다.
+     1) unit, flatMap
+     2) unit,compose
+     3) unit,map,join
+     
+     그리고 Monad의 법칙 3개 가있다.
+     m bind f bind g = m bind (a => f(a) bind g)
+     bind(unit,f) = f
+     bind(f, unit) f
+     
+     Monad는 Monad적 조합기들의 최소 집합 중 하나의 set를 결합법칙,항등법칙을 만족하도록 구현한 것이다.
+     
+     Monad의 목적 
+     한두 형식을 일반화하는 것이 아니라, Monad interface와 법칙을 만족할 수 있는 아주 다양하고 많은 자료 형식을 일반화 한다.
+     Monad를 이용하면 언뜻 보기에는 공통점이 전혀 없는 서로 다른 자료형식들에 대한 여러 조합기를 단 한번만 작성할 수 있다.
+      */
+       
+
+  }
+  
+  case class Reader[R,A](run: R => A)
+  object Reader {
+    def readerMonad[R] = new Monad[({type f[X] = Reader[R,X]})#f] {
+      def unit[A](a: => A): Reader[R,A] = Reader(r => a)
+      def flatMap[A,B](rd: Reader[R,A])(f: A => Reader[R,B]): Reader[R,B] = 
+        Reader(r => {
+          val a = rd run r
+          f(a).run(r)
+        })
+    }
   }
   
 }
 
+
+
+//################ monad 유형중 하나인 항등 monad ##################
+case class Id[A](value: A) {
+  def unit(a: A): Id[A] = Id(a)
+  def map[B](f: A => B): Id[B] = Id(f(value))
+  def flatMap[B](f: A => Id[B]): Id[B] = f(value)
+}
+
+
+case class User(id: Int, name: String)
+case class Comment(user: User, content: String)
+
+
+
 object MonadDriver extends App {
-  //import basic.monad.MonadStudy.MonadV03._
+  //import basic.monad.MonadStudy.MonadV03.
+  import basic.monad.MonadStudy._
+
+  val s1 = Some(1)
+  val s2 = Some(2)
   
+  val sf1 = (v: Int) => Some(v)
+  val sf2 = (v:Int) => Some(v * v)
+  val sf3 = (v:Int) => Some(v.toDouble / 2.toDouble) 
+  val m3 = new MonadV03[Option] {
+    def unit[A](a: => A): Option[A] = Some(a)
+    def flatMap[A,B](fo: Option[A])(f: A => Option[B]): Option[B] = 
+      fo.flatMap(a => f(a))
+  }
+  val rx02 = m3.compose(m3.compose(sf2,sf1), sf3)(3)
+  println(rx02)
+  
+  val rx03 = m3.compose(sf2,m3.compose(sf1, sf3))(3)
+  println(rx03)
+  
+  
+  def mapF[A,B,C](f: A => B)(g: B => C): A => C = g compose f
+  
+  val fb = Some((a:Int) => a * a)
+  val vb = Some(2)
+  
+  def mapTest[A,B](ma: Option[A], f: Option[A => B]): Option[B] = 
+    ma.flatMap(a => f.map(b => b(a)))
+    
+  println(mapTest(vb,fb))
+  
+  val f = (v:Int) => Some(v * v)
+  val g = (v:Int) => Some(v.toDouble / 2.toDouble) 
+  
+  s1.flatMap(a => f(a).flatMap(g))
+  def test(m: Option[Int]): Option[Double] =  m match {
+    //case Some(v) => ((a:Int) => f(a).flatMap(g))(v)
+    case Some(v) => f(v).flatMap(g)
+  }
   
 }
