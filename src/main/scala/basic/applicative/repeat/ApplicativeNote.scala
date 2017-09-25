@@ -112,8 +112,8 @@ object ApplicativeNote {
     }
 
     //ex-15) Either를 위한 Monad instance를 만들어라.
-    def eitherMonad[E]: basic.monad.MonadStudy.Monad[({ type f[X] = Either[E, X] })#f] =
-      new basic.monad.MonadStudy.Monad[({ type f[X] = Either[E, X] })#f] {
+    def eitherMonad[E]: basic.monad.Monad[({ type f[X] = Either[E, X] })#f] =
+      new basic.monad.Monad[({ type f[X] = Either[E, X] })#f] {
         def unit[A](a: => A): Either[E, A] = Right(a)
         def flatMap[A, B](m: Either[E, A])(f: A => Either[E, B]): Either[E, B] = m match {
           case Right(a) => f(a)

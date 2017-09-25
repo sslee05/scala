@@ -1,5 +1,6 @@
 package basic.applicative
-import basic.monad.MonadStudy._
+import basic.monad.Monad._
+import basic.monad.Functor
 
 object ApplicativeStudy {
 
@@ -204,8 +205,8 @@ object ApplicativeStudy {
   }
   
   //ex-15) Either를 위한 Monad instance를 만들어라.
-  def eitherMonad[E]:basic.monad.MonadStudy.Monad[({ type f[X] = Either[E, X] })#f] = 
-    new basic.monad.MonadStudy.Monad[({ type f[X] = Either[E, X] })#f] {
+  def eitherMonad[E]:basic.monad.Monad[({ type f[X] = Either[E, X] })#f] = 
+    new basic.monad.Monad[({ type f[X] = Either[E, X] })#f] {
       def unit[A](a: => A): Either[E, A] = Right(a)
       def flatMap[A, B](m: Either[E, A])(f: A => Either[E, B]): Either[E, B] = m match {
         case Right(a) => f(a)
@@ -256,7 +257,7 @@ object ApplicativeDriver extends App {
   //ex-20) map2의 결합법칙을 증명하라.
   // op(a,op(b,c)) = op(op(a,b),c)
   //map2(a,map2(b,c)) = map2(map2(a,b),c)
-  val rs03 = opa.map2(Some(3), map2(Some(4),Some(5))((a,b) => a + b))((a,b) => a + b) == 
+  val rs03 = opa.map2(Some(3), opa.map2(Some(4),Some(5))((a,b) => a + b))((a,b) => a + b) == 
     opa.map2(opa.map2(Some(3), Some(4))((a,b) => a + b ), Some(5))((a,b) => a + b)
     
   println(rs03)
@@ -298,7 +299,7 @@ object ApplicativeDriver extends App {
   val validateAge = Right(42)
   val validateEmail = Right("sslee05@gmail.com")
 
-  val m:basic.monad.MonadStudy.Monad[({ type f[X] = Either[Any, X] })#f] = eitherMonad
+  val m:basic.monad.Monad[({ type f[X] = Either[Any, X] })#f] = eitherMonad
 
   val rs = m.flatMap(validateName)(a => m.flatMap(validateAge)(b => m unit b))
   println(rs)
