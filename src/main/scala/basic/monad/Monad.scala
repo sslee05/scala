@@ -57,7 +57,7 @@ trait Monad[F[_]] extends Functor[F] {
     xs.foldRight[F[List[B]]](unit(List()))((a,b) => map2(f(a),b)((a1,b1) => a1 :: b1))
     
   //ex-14) replicate 를 구현하라.
-  def replicated[A](n: Int, ma: F[A]): F[List[A]] = 
+  def replicate[A](n: Int, ma: F[A]): F[List[A]] = 
     if(n > 0) map2(ma,replicatedM(n-1,ma))((a,b) => a :: b)
     else unit(List[A]())
   

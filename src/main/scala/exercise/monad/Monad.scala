@@ -48,7 +48,7 @@ trait Monad[F[_]] extends Functor[F] {
   def traverse[A,B](xs: List[A])(f: A => F[B]): F[List[B]] = ???
     
   //ex-14) replicate 를 구현하라.
-  def replicated[A](n: Int, ma: F[A]): F[List[A]] = ???
+  def replicate[A](n: Int, ma: F[A]): F[List[A]] = ???
   
   def replicatedM[A](n: Int, ma: F[A]): F[List[A]] = ???
     
