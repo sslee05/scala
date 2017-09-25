@@ -209,8 +209,8 @@ object TraverseStudy {
    */
 
   //ex-09) Traverse 를 Foldable이라 할 수 있게 구현하라.
-  import basic.monoid.MonoidStudy.Foldable
-  import basic.monoid.MonoidStudy.Monoid
+  import basic.monoid.Foldable
+  import basic.monoid.Monoid
   type Const[M, B] = M
   trait TraverseV2[F[_]] extends Functor[F] with Foldable[F] {
     def traverse[G[_]: Applicative, A, B](ma: F[A])(f: A => G[B]): G[F[B]]

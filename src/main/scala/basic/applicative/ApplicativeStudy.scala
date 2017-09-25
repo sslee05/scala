@@ -175,8 +175,8 @@ object ApplicativeStudy {
   }
   
   //ex-30) Foldalbe 의 foldMap도 traverse 로 구현하라. 
-  import basic.monoid.MonoidStudy.Foldable
-  import basic.monoid.MonoidStudy.Monoid
+  import basic.monoid.Foldable
+  import basic.monoid.Monoid
   trait TraverseV3[F[_]] extends Functor[F] with Foldable[F] {
     def traverse[G[_],A,B](fa: F[A])(f: A => G[B])(implicit G: Applicative[G]): G[F[B]]
     def sequence[G[_],A](fga: F[G[A]])(implicit G: Applicative[G]): G[F[A]]
