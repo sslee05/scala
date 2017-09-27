@@ -1,5 +1,7 @@
 package exercise.monad
 
+import exercise.applicative.Applicative
+
 //ex-01) Functor를 modeling 하라.
 /*
 f: A => B를 받고 F[A] 를 받아 F[B] 이 되었다.
@@ -31,29 +33,29 @@ object Functor {
 }
 
 //ex-04) unit과 flatMap를 기본수단으로 하는 Monad를 구현하라.
-trait Monad[F[_]] extends Functor[F] {
+trait Monad[F[_]] extends Applicative[F] {
   def unit[A](a: => A): F[A]
   def flatMap[A,B](ma: F[A])(f: A => F[B]): F[B]
   
   //ex-05) flatMap과 unit으로 map를 구현하라.
-  def map[A,B](ma: F[A])(f: A => B): F[B] = ???
+  override def map[A,B](ma: F[A])(f: A => B): F[B] = ???
     
-  //ex-06) flatMap과 map으로 map2를 구현하라.
+  //ex-06) flatMap과 map으로 map2를 구현하라.(이를 구현함으로 Monad[F[_]] extends Applicative[F] 가 된다.
   def map2[A,B,C](ma: F[A], mb: F[B])(f: (A,B) => C): F[C] = ??? 
   
   //ex-12) sequence를 구현하라.
-  def sequence[A](xs: List[F[A]]): F[List[A]] = ???
+  override def sequence[A](xs: List[F[A]]): F[List[A]] = ???
     
   //ex-13) traverse 를 구현하라.
-  def traverse[A,B](xs: List[A])(f: A => F[B]): F[List[B]] = ???
+  override def traverse[A,B](xs: List[A])(f: A => F[B]): F[List[B]] = ???
     
   //ex-14) replicate 를 구현하라.
-  def replicate[A](n: Int, ma: F[A]): F[List[A]] = ???
+  override def replicate[A](n: Int, ma: F[A]): F[List[A]] = ???
   
   def replicatedM[A](n: Int, ma: F[A]): F[List[A]] = ???
     
   //ex-15)map2를 이용하여 2개의 자료구조를 곱하는 함수를 작성하라.
-  def product[A,B](ma: F[A], mb: F[B]): F[(A,B)] = ???
+  override def product[A,B](ma: F[A], mb: F[B]): F[(A,B)] = ???
     
   //ex-16)filterM를 구현하라. 이는 A => Boolean 이것이 아니라 A => F[Boolean] 가 주어진다.
   def filterM[A](xs: List[A])(p: A => F[Boolean]): F[List[A]] = ???

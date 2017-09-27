@@ -51,13 +51,16 @@ trait Applicative[F[_]] extends Functor[F] {
   def productF[I,O,I2,O2](f: I => O,g: I2 => O2): (I,I2) => (O, O2) = ???
     
   //ex-17) Applicative 합성을 구현하라. 
-  def compose[G[_]](G: Applicative[G]): Applicative[({type f[X] = F[G[X]]})#f] = {
+  def compose[G[_]](G: Applicative[G]): Applicative[({type f[x] = F[G[x]]})#f] = {
     val self = this
     new Applicative[({type f[x] = F[G[x]]})#f] {
       def unit[A](a: => A): F[G[A]] = ???
       def map2[A,B,C](ma: F[G[A]], mb: F[G[B]])(f: (A,B) => C): F[G[C]] = ???
     }
   }
+  
+  //ex-18) 다른 Applicative Functor를 받아 곱하는 다음의 함수를 구현하라.
+  def product[G[_]](G: Applicative[G]): Applicative[({ type f[x] = (F[x], G[x]) })#f] = ???
     
 }
 
