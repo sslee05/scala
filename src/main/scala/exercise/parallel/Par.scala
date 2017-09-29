@@ -1,4 +1,4 @@
-package basic.parallel
+package exercise.parallel
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
@@ -133,7 +133,7 @@ object Par { self =>
   }
 }
 
-import basic.parallel.Par._
+import exercise.parallel.Par._
 import java.util.concurrent.Executors
 
 object ParDriver extends App {
