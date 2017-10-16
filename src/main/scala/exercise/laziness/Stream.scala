@@ -8,6 +8,8 @@ trait Stream[+A] {
   
   //ex-06) Stream을 List로 반환하는 함수를 작성하라.
   def toList: List[A] = ???
+  def toListNotReverse: List[A] = ???
+  def toListFast: List[A] = ???
   
   //ex-07) Stream의 처음 n개의 요소를 돌려주는 함수를 작성하라
   def takeOrigin(n: Int): Stream[A] = ???
@@ -24,7 +26,7 @@ trait Stream[+A] {
   //ex-11) foldRight를 구현하되 2번째 누적 인자를 laziness 하게 하라.
   def foldRight[B](z: => B)(f: (A, => B) => B): B = ???
   
-  //ex-12) Stream의 모든 요소가 주어진 술어를 모두 만족하는지 판별하는 함수를 작성하라. 만족하지 않으면 즉시 순회를 마처야 한다.
+  //ex-12) foldRight를 이용하여 Stream의 모든 요소가 주어진 술어를 모두 만족하는지 판별하는 함수를 작성하라. 만족하지 않으면 즉시 순회를 마처야 한다.
   def forAll(p: A => Boolean): Boolean = ???
     
   //ex-13) foldRight를 이용하여 takeWhile를 구현하라.

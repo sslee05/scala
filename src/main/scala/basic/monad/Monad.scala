@@ -102,7 +102,7 @@ object Monad {
   //ex-07)Par에 대한 Monad instance를 생성하라.
   import basic.parallel.Par._
   val parMonad: Monad[Par] = new Monad[Par] {
-    def unit[A](a: => A): Par[A] = unit(a)
+    def unit[A](a: => A): Par[A] = basic.parallel.Par.unit(a)
     def flatMap[A, B](ma: Par[A])(f: A => Par[B]): Par[B] =
       ma flatMap f
   }
@@ -199,5 +199,16 @@ object MonadDriver extends App {
     //case Some(v) => ((a:Int) => f(a).flatMap(g))(v)
     case Some(v) => f(v).flatMap(g)
   }
+  
+  val xs = Stream(1,2,3)
+  val ys = Stream("a","b","c")
+  val rs = streamMonad.map(xs)(a => {
+    println("$")
+    a +1
+  }).map(b => {
+    println("#")
+    b +1
+  })
 
+  println(rs.toList)
 }

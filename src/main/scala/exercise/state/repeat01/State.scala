@@ -1,70 +1,70 @@
-package basic.state
+package exercise.state.repeat01
 
-import basic.state.State._
+import exercise.state.repeat01.State._
 
 //ex-01) 상태를 가지는 State case class 를 작성하라.
-case class State[S,+A](run : S => (A,S)) {
+case class State[S,+A](run: S => (A,S)) {
   
   //ex-04)flatMap를 구현하라.
-  def flatMap[B](f: A => State[S,B]): State[S,B] = State(s => {
-    val (a,s1) = run(s)
-    f(a) run s1
+  def flatMap[B](f: A => State[S,B]): State[S,B] = State(s => run(s) match {
+    case (a,s1) => f(a) run s1
   })
   
-  //ex-05) map를 구현하라.
-  def map[B](f: A => B): State[S,B] = 
-    flatMap(a => unit(f(a)))
+  //ex-04) map를 구현하라.
+  def map[B](f: A => B): State[S,B] = flatMap(a => unit(f(a)))
     
-  //ex-06)map2 함수를 구현하라.
+  //ex-05)map2 함수를 구현하라.
   def map2[B,C](mb: State[S,B])(f: (A,B) => C): State[S,C] = 
     flatMap(a => mb map(b => f(a,b)))
+  
 }
 
 //ex-02)State object 를 만들어라.
 object State {
   
   //ex-03)항등원인 unit 함수를 구현하라.
-  def unit[S,A](a: A):State[S,A] = State(s => (a,s))
+  def unit[S,A](a: A): State[S,A] = State(s => (a,s))
   
-  //ex-07)명시적으로 loop를 실행해서 sequence를 구현하라.
+  //ex-04)명시적으로 loop를 실행해서 sequence를 구현하라.
   def sequenceExplicit[S,A](xs: List[State[S,A]]): State[S,List[A]] = {
     
-    def go(s:S,actions:List[State[S,A]],acc:List[A]):(List[A],S) = actions match {
-      case h::t => h run s match { case (a,s1) => go(s1, t, a::acc) }
-      case Nil => (acc.reverse,s)
+    def go(s: S, actions: List[State[S,A]],rs: List[A]): (List[A],S) = actions match {
+      case Nil => (rs.reverse,s)
+      case h::t => h.run(s) match { case (a,s1) => go(s1,t,a::rs) }
     }
     
-    State(s => go(s,xs,Nil))
+    State(s => go(s,xs,List[A]()))
   }
   
-  //ex-08)sequence를 foldRight로 구현하라.
+  //ex-06)sequence를 foldRight로 구현하라.
   def sequenceViaFoldRight[S,A](xs: List[State[S,A]]): State[S,List[A]] = 
-    xs.foldRight[State[S,List[A]]](unit(Nil))((a,b) => b.map2(a)((b1,a1) => a1::b1 ))
+    xs.foldRight[State[S,List[A]]](unit(List[A]()))((a,b) => a.map2(b)((a1,b1) => a1::b1))
     
-  //ex-09)sequence를 foldLeft로 구현하라.
+    
+  //ex-07)sequence를 foldLeft로 구현하라.
   //아래의 foldLeft는 reverse를 하므로 foldRight보다 속도가 느릴것 같지만
   //실제로 foldRight보다 빠르다. 이유는 foldRight는 Nil까지 갔다가 stack frame
   //이 다시 원상태로 와야 하기 때문에 foldRight도 2 번 종단을 하기 때문이다.
   def sequenceViaFoldLeft[S,A](xs: List[State[S,A]]): State[S,List[A]] = 
-    xs.reverse.foldLeft[State[S,List[A]]](unit(Nil))((b,a) => b.map2(a)((b1,a1) => a1::b1))
+    xs.reverse.foldLeft[State[S,List[A]]](unit(List[A]()))((b,a) => a.map2(b)((a1,b1) => a1::b1))
     
-  //ex-10)sequence를 reverse 없이 foldLeft를 이용해서 구현하라.
+  //ex-08)sequence를 reverse 없이 foldLeft를 이용해서 구현하라.
   def sequence[S,A](xs: List[State[S,A]]): State[S,List[A]] = {
     type StateFn = State[S,List[A]] => State[S,List[A]]
-    xs.foldLeft[StateFn](s => s)((g,a) => x => g(a.map2(x)((a1,b1) => a1::b1 )))(unit(Nil:List[A]))
+    xs.foldLeft[StateFn](s => s)((g,a) => b => g(a.map2(b)((a1,b1) => a1::b1)))(unit(Nil))
   }
   
-  //ex-11) get 를 구현하라.
+  //ex-09) get 를 구현하라.
   def get[S]: State[S,S] = State(s => (s,s))
   
-  //ex-12) set 를 구현하라.
-  def set[S](s: S): State[S,Unit] = State( _ => ((),s))
+  //ex-10) set 를 구현하라.
+  def set[S](s: S): State[S,Unit] = State(_ => ((),s))
   
-  //ex-13) 다음을 구현하라.
+  //ex-11) 다음을 구현하라.
   def modify[S](f: S => S): State[S,Unit] = 
-    get flatMap(s => set(f(s)))
+    get flatMap(a => set(f(a)))
   
-  //ex-14) modify를 for 표현식으로 구현하라.
+  //ex-12) modify를 for 표현식으로 구현하라.
   def modifyByFor[S](f: S => S): State[S,Unit] = for {
     s <- get
     _ <- set(f(s))
@@ -94,25 +94,28 @@ object CandySlotMachine {
   //val rs:List[State[Machine,Unit]] = inputs map(modify[Machine] _ compose update)
   //val rs:State[Machine,List[Unit]] = sequence(inputs map(modify[Machine] _ compose update))
   
-  //ex-15) 다음을 구현하라.
+  //ex-13) 다음을 구현하라.
   def simulatedMachine(inputs: List[Input]): State[Machine,(Int,Int)] = 
-    sequence(inputs map(modify[Machine] _ compose update)).flatMap(n => get.map(s => (s.candies,s.coins)))
+    sequence(inputs map(modify[Machine] _ compose update)).flatMap(ma => get.map(m => (m.candies,m.coins)))
     
-  //ex-16) simulatedMachine을 for 표현식으로 구현하라.
+  //ex-14) simulatedMachine을 for 표현식으로 구현하라.
   def simulatedMachineByFor(inputs: List[Input]): State[Machine,(Int,Int)] = for {
     _ <- sequence(inputs map(modify[Machine] _ compose update))
     s <- get
-  }yield(s.candies,s.coins)
+  } yield(s.candies,s.coins)
   
 }
 
-object StateDriver extends App {
+object StateDriver01 extends App {
   
-  import basic.state.CandySlotMachine._
+  import exercise.state.repeat01.CandySlotMachine._
+//  val xs01 = List(Coin,Turn)
+//  val rs01 = simulatedMachine(xs01) 
+//  println(rs01.run(Machine(true,10,1)))
   
-  val xs01 = List(Coin,Turn)
-  val rs01 = simulatedMachine(xs01) 
-  println(rs01.run(Machine(true,10,1)))
+  val xs02 = List(State((s:Int) => (s+1,s+1)),State((s:Int) => (s * 2,s +1 )))
+  println(sequenceExplicit(xs02).run(0))
+  println(sequence(xs02).run(0))
   
 }
 
