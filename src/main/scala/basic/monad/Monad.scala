@@ -146,10 +146,7 @@ object Reader {
   def readerMonad[R]: Monad[({ type f[x] = Reader[R, x] })#f] = new Monad[({ type f[x] = Reader[R, x] })#f] {
     def unit[A](a: => A): Reader[R, A] = Reader(r => a)
     def flatMap[A, B](rd: Reader[R, A])(f: A => Reader[R, B]): Reader[R, B] =
-      Reader(r => {
-        val a = rd run r
-        f(a).run(r)
-      })
+      Reader(r => f(rd run r) run r)
   }
 }
 
