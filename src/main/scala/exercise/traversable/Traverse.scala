@@ -1,18 +1,17 @@
 package exercise.traversable
 
-import exercise.monad.Functor
-import exercise.applicative.Applicative
-import exercise.monad.Monad
-import exercise.monoid.Foldable
-import exercise.monoid.Monoid
+import basic.monad.Functor
+import basic.applicative.Applicative
+import basic.monad.Monad
+import basic.monoid.Foldable
+import basic.monoid.Monoid
 import basic.state.State
 
 
 //ex-01) Functor를 extends 한 Traverse functor를 선언하라. 
 trait Traverse[F[_]] extends Functor[F] with Foldable[F] { self =>
   def traverse[G[_]: Applicative, A, B](ma: F[A])(f: A => G[B]): G[F[B]]
-  def sequence[G[_]: Applicative, A](ma: F[G[A]]): G[F[A]] = 
-    traverse(ma)(a => a)
+  def sequence[G[_]: Applicative, A](ma: F[G[A]]): G[F[A]] = ???
     
   //ex-02) IdMonad를 만들어 map을 traverse 와 IdMonad를 이용하여 구현하라.
   type Id[A] = A
@@ -37,7 +36,7 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] { self =>
   override def foldMap[A,M](ma: F[A])(f: A => M)(mi: Monoid[M]): M = ???
     
   //ex-09) State 동작과 traverse 를 이용한 내부상태를 유지하면서 자료구조를 훑는 다음의 함수를 작성하라.
-  import exercise.monad.Monad._
+  import basic.monad.Monad._
   def traverseS[S,A,B](fa: F[A])(f: A => State[S,B]): State[S,F[B]] = ???
     
   //ex-10) traverseS를 이용해서 0부터 시작하여 1씩증가하는 내부상태 를 구하는 다음의 함수를 구하라.
