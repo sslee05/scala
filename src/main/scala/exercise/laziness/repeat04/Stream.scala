@@ -1,16 +1,56 @@
-package exercise.laziness
+package exercise.laziness.repeat04
 
-import exercise.laziness.Stream._
+import exercise.laziness.repeat04.Stream._
 
 //ex-01) Stream trait 와 그를 상속하는 Cons와 Empty case class를 작성하되.
 //Cons의 class parameter를 laziness 하게 작성하라.
 trait Stream[+A] {
   
   //ex-06) Stream을 List로 반환하는 함수를 작성하라.
-  def toListNoTailRec: List[A] = ???
-  def toList: List[A] = ???
-  def toListNotReverse: List[A] = ???
-  def toListFast: List[A] = ???
+  def toListNoTailRec: List[A] = this match {
+    case Empty => Nil
+    case h Cons t => h() :: t().toListNoTailRec 
+  }
+  
+  def toList: List[A] = {
+    
+    @annotation.tailrec
+    def go(sx: Stream[A], xs: List[A]): List[A] =  sx match {
+      case Empty => xs.reverse
+      case Cons(h,t) => go(t(),h()::xs)
+    }
+    
+    go(this,Nil)
+  }
+  
+  def toListNotReverse: List[A] = {
+    
+    type B = List[A] => List[A]
+    
+    def go(sx: Stream[A], z: B)(f: (A,B) => B): B = sx match {
+      case Empty => z
+      case h Cons t => go(t(), f(h(),z))(f)
+    }
+    
+    go(this, (y:List[A]) => y)((a,b) => x => b(a::x) )(Nil)
+    
+  }
+  
+  def toListFast: List[A] = {
+    var listBuf = new scala.collection.mutable.ListBuffer[A]
+    
+    def go(xs: Stream[A]) : List[A] = xs match {
+      case Empty => xs.toList
+      case h Cons t => {
+        listBuf += h()
+        go(t())
+      }
+    }
+    
+    go(this)
+    
+  }
+  //def toListFast: List[A] = ???
   
   //ex-07) Stream의 처음 n개의 요소를 돌려주는 함수를 작성하라
   def takeOrigin(n: Int): Stream[A] = ???
@@ -96,14 +136,23 @@ object Empty extends Stream[Nothing]
 object Stream {
   
   //ex-03) cons 의 smart 생성자를 작성하라.
-  def cons[A](hd: => A, tl: => Stream[A]): Stream[A] = ???
+  def cons[A](hd: => A, tl: => Stream[A]): Stream[A] = {
+    lazy val head = hd
+    lazy val tail = tl
+    
+    Cons(() => head,() => tail)
+  }
   
   //ex-04) Empty 을 반환하는 함수를 작성하라.
-  def empty[A]: Stream[A] = ???
+  def empty[A]: Stream[A] = Empty 
   
   //ex-05) apply 적용함수를 작성하라.
-  //A * 은 Seq type 이다. 
-  def apply[A](xs: A *): Stream[A] = ???
+  //A * 은 Seq type 이다.
+  def apply[A](xs: A*): Stream[A] = {
+    if(xs.isEmpty) empty[A]
+    else cons(xs.head,apply(xs.tail: _*))
+  }
+    
     
   //ex-19) 주어진 값의 무한 Stream을 돌려주는 함수 constant를 구현하라.
   def constant[A](a: A): Stream[A] = ???
@@ -132,6 +181,11 @@ object Stream {
 
 object StreamDriver extends App {
   val xs01 = Stream(1,2,3,4,5)
+  
+  println(xs01.toList)
+  println(xs01.toListNotReverse)
+  
+  /*
   println(xs01.takeOrigin(2))
   println(xs01.takeOrigin(2).toList)
   println(xs01.headOption)
@@ -141,4 +195,5 @@ object StreamDriver extends App {
   
   val xs02 = Stream(1,2,3)
   println(xs02.tails.toList)
+  */
 }
