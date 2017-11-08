@@ -59,16 +59,14 @@ trait Stream[+A] {
   
   //ex-08) Stream에서 처음 n개의 요소를 건너뛰고 반환하는 함수를 작성하라.
   def dropOrigin(n: Int): Stream[A] = this match {
-    case Empty => empty
-    case Cons(h,t) if n > 0 => t().dropOrigin(n - 1)
-    case Cons(_,_) => this
+    case Cons(h,t) if n > 0 => t().dropOrigin(n-1)
+    case _ => this
   }
   
   //ex-09) 주어진 술어를 만족하는 선행 요소들을 모두 돌려주는 함수를 작성하라.
   def takeWhileOrigin(p: A => Boolean): Stream[A] = this match {
-    case Empty => empty
-    case Cons(h,t) if p(h()) => cons(h(), t() takeWhileOrigin p)
-    case Cons(h,t) => t() takeWhileOrigin p
+    case Cons(h,t) => if(p(h())) cons(h(),t() takeWhileOrigin p) else t() takeWhileOrigin p
+    case _ => empty[A] 
   }
   
   //ex-10) 술어를 만족하는 원소가 있는지 판별하는 exists 를 구현하라.
