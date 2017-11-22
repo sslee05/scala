@@ -75,6 +75,9 @@ trait Monad[F[_]] extends Applicative[F] {
     case Nil    => unit(Nil)
     case h :: t => flatMap(p(h))(a => if (a) map(filterM(t)(p))(t1 => h :: t1) else filterM(t)(p))
   }
+  
+  def filterM2[A](xs: List[A])(p: A => F[Boolean]): F[List[A]] = 
+    map(sequence(xs.map(a => map2(unit(a), p(a))((a1,b) => if(b) List(a1) else Nil))))(a => a.flatten)
 
   //ex-17)Kleisli arrow 에 관한 compose 함수를 구현하라.(Monad Set02: unit,compose)
   def compose[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
@@ -160,7 +163,7 @@ case class Id[A](value: A) {
 object MonadDriver extends App {
   //import basic.monad.MonadStudy.MonadV03.
   import basic.monad.Monad._
-
+  
   val s1 = Some(1)
   val s2 = Some(2)
 
@@ -208,4 +211,24 @@ object MonadDriver extends App {
   })
 
   println(rs.toList)
+  
+  val xs10 = List(1,2,3,4,5)
+  val m = new Monad[Option] {
+    def unit[A](a: => A): Option[A] = Some(a)
+    def flatMap[A,B](ma: Option[A])(f: A => Option[B]): Option[B] = 
+      ma.flatMap(f)
+  }
+
+  val rs20 = m.filterM2(xs10) {
+    case i if i > 3 => Some(true)
+    case _ => Some(false)
+  }
+  println(rs20)
+  
+  val rs10 = m.filterM(xs10) {
+    case i if i > 3 => Some(true)
+    case _ => Some(false)
+  }
+  
+  println(rs10)
 }
