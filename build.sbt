@@ -12,15 +12,15 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= Seq(
         scalaTest % Test,
         //S:akka lib
-        "com.typesafe.akka" %% "akka-actor" % "2.5.4",
-        "com.typesafe.akka" %% "akka-testkit" % "2.5.4" % Test,
-        "com.typesafe.akka" %% "akka-stream" % "2.5.2",
-        "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.4" % Test,
-        "com.typesafe.akka" %% "akka-http" % "10.0.10",
-        "com.typesafe.akka" %% "akka-http-testkit" % "10.0.10" % Test,
-        "com.typesafe.akka" %% "akka-cluster" % "2.5.4",
-        "com.typesafe.akka" %% "akka-cluster-sharding" %  "2.5.4",
-        "com.typesafe.akka" %% "akka-distributed-data" % "2.5.4",
+        "com.typesafe.akka" %% "akka-actor" % "2.5.9",
+        "com.typesafe.akka" %% "akka-testkit" % "2.5.9" % Test,
+        "com.typesafe.akka" %% "akka-stream" % "2.5.9",
+        "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.9" % Test,
+        "com.typesafe.akka" %% "akka-http" % "10.0.11",
+        "com.typesafe.akka" %% "akka-http-testkit" % "10.0.11" % Test,
+        "com.typesafe.akka" %% "akka-cluster" % "2.5.9",
+        "com.typesafe.akka" %% "akka-cluster-sharding" %  "2.5.9",
+        "com.typesafe.akka" %% "akka-distributed-data" % "2.5.9",
         //E:akka lib
 		
 		//S:ScalaCheck
