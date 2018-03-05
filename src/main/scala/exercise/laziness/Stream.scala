@@ -64,7 +64,7 @@ trait Stream[+A] {
   def zipAll[B](sx: Stream[B]): Stream[(Option[A],Option[B])] = ???
   
   //ex-33) subSequence를 작성하라.
-  def subSequence[B >: A](sub:Stream[B]): Boolean = ???
+  def hasElement[B >: A](sub: Stream[B]): Boolean = ???
   
   //ex-32)위의 function 들로 아래와 같은 것을 구현하라.
   //Stream(1,2,3,4,5) 와 Stream(1,2,3) 은 true Stream(2,3,4) 는 false
@@ -76,7 +76,7 @@ trait Stream[+A] {
   def tails:Stream[Stream[A]] = ???
   
   //ex-34) tail를 이용한 subSequence를 재구현 하라.
-  def subSequenceViaTails[B >: A](sx: Stream[B]): Boolean = ???
+  def subSequence[B >: A](sx: Stream[B]): Boolean = ???
   
   /*
   def scanRight[B](z: B)(f: (A, => B) => B): Stream[B] =
