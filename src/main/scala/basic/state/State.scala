@@ -39,6 +39,15 @@ object State {
     State(s => go(s,xs,Nil))
   }
   
+  def sequenceExplicitViaMap2[S,A](xs: List[State[S,A]]): State[S,List[A]] = {
+    def go(xs: List[State[S,A]], ma: State[S,List[A]]): State[S,List[A]] = xs match {
+      case h :: t => go(t,h.map2(ma)((a,b) => a::b))
+      case Nil => ma
+    }
+    
+    go(xs.reverse,unit(Nil))
+  }
+  
   //ex-08)sequence를 foldRight로 구현하라.
   def sequenceViaFoldRight[S,A](xs: List[State[S,A]]): State[S,List[A]] = 
     xs.foldRight[State[S,List[A]]](unit(Nil))((a,b) => b.map2(a)((b1,a1) => a1::b1 ))
