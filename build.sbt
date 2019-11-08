@@ -21,11 +21,16 @@ lazy val root = (project in file(".")).
         "com.typesafe.akka" %% "akka-cluster" % "2.5.9",
         "com.typesafe.akka" %% "akka-cluster-sharding" %  "2.5.9",
         "com.typesafe.akka" %% "akka-distributed-data" % "2.5.9",
+        "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.10",
         //E:akka lib
-		
-		//S:ScalaCheck
-		"org.scalacheck" % "scalacheck_2.12" % "1.13.5" % "test"
-		//E:ScalaCheck
+      
+        //S:spray
+        //"com.typesafe.akka" %% "akka-http-spray-json" % "10.1.10"
+        //E:
+        
+        //S:ScalaCheck
+		    "org.scalacheck" % "scalacheck_2.12" % "1.13.5" % "test"
+		    //E:ScalaCheck
     )
 
   )
